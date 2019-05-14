@@ -8,7 +8,7 @@ import tiles.MapTile;
 import utilities.Coordinate;
 import world.WorldSpatial;
 
-public class MyAutoController extends CarController{		
+public class MyAutoController extends CarController {		
 		// How many minimum units the wall is away from the player.
 		private int wallSensitivity = 1;
 		
@@ -29,10 +29,11 @@ public class MyAutoController extends CarController{
 			HashMap<Coordinate, MapTile> currentView = getView();
 			
 			// checkStateChange();
-			if(getSpeed() < CAR_MAX_SPEED){       // Need speed to turn and progress toward the exit
+			if(getSpeed() < CAR_MAX_SPEED && !checkWallAhead(getOrientation(),currentView)) {       // Need speed to turn and progress toward the exit
 				applyForwardAcceleration();   // Tough luck if there's a wall in the way
 			}
 			if (isFollowingWall) {
+				applyBrake();
 				// If wall no longer on left, turn left
 				if(!checkFollowingWall(getOrientation(), currentView)) {
 					turnLeft();
@@ -40,7 +41,7 @@ public class MyAutoController extends CarController{
 					// If wall on left and wall straight ahead, turn right
 					if(checkWallAhead(getOrientation(), currentView)) {
 						turnRight();
-					}
+					}// If wall on left and wall straight ahead, turn right
 				}
 			} else {
 				// Start wall-following (with wall on left) as soon as we see a wall straight ahead
@@ -68,19 +69,7 @@ public class MyAutoController extends CarController{
 		 * @return
 		 */
 		private boolean checkFollowingWall(WorldSpatial.Direction orientation, HashMap<Coordinate, MapTile> currentView) {
-			
-			switch(orientation){
-			case EAST:
-				return check(WorldSpatial.Direction.NORTH, currentView);
-			case NORTH:
-				return check(WorldSpatial.Direction.WEST, currentView);
-			case SOUTH:
-				return check(WorldSpatial.Direction.EAST, currentView);
-			case WEST:
-				return check(WorldSpatial.Direction.SOUTH, currentView);
-			default:
-				return false;
-			}	
+			return check(WorldSpatial.changeDirection(orientation, WorldSpatial.RelativeDirection.LEFT), currentView);
 		}
 		
 		public boolean check(WorldSpatial.Direction orientation, HashMap<Coordinate, MapTile> currentView) {
