@@ -1,7 +1,4 @@
 package mycontroller;
-//tester1.0
-//wuttt
-//HELLO?!?!?!
 import controller.CarController;
 import world.Car;
 import java.util.HashMap;
@@ -9,6 +6,8 @@ import java.util.HashMap;
 import tiles.MapTile;
 import utilities.Coordinate;
 import world.WorldSpatial;
+
+// hello val test.1
 
 public class MyAutoController extends CarController {
 	// How many minimum units the wall is away from the player.
