@@ -1,8 +1,12 @@
 package mycontroller;
 import controller.CarController;
 import world.Car;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 import tiles.MapTile;
@@ -23,6 +27,59 @@ public class MyAutoController extends CarController {
 	public MyAutoController(Car car) {
 		super(car);
 	}
+	
+	// breadth first search
+	public void search(Coordinate currentPosition, HashMap<Coordinate, MapTile> map) {
+		int distance = 0;
+		ArrayList<Coordinate> movement = new ArrayList<Coordinate>();
+		movement.add(new Coordinate(1, 0));
+		movement.add(new Coordinate(-1, 0));
+		movement.add(new Coordinate(0, 1));
+		movement.add(new Coordinate(0, -1));
+		
+		
+		HashMap<Coordinate, Integer> distanceMap = new HashMap<Coordinate, Integer>();
+		Coordinate nextMove = bfs(currentPosition, distance, map, distanceMap, movement);
+		
+//		currentPosition;
+	}
+	public Coordinate bfs(Coordinate currentPosition, int distance, HashMap<Coordinate, MapTile> map, HashMap<Coordinate, Integer> distanceMap, ArrayList<Coordinate> movement) {
+		HashMap<Coordinate, Boolean> visited = new HashMap<Coordinate, Boolean>(); 
+				  
+		// Create a queue for BFS 
+	    LinkedList<Coordinate> queue = new LinkedList<Coordinate>(); 
+  
+        // Mark the current node as visited and enqueue it 
+        visited.put(currentPosition, true);
+        queue.add(currentPosition); 
+        Coordinate currentTile;
+        while (queue.size() != 0) 
+        { 
+            // Dequeue a vertex from queue and print it 
+        	currentTile = queue.poll();
+        	
+            // Get all adjacent vertices of the dequeued vertex s 
+            // If a adjacent has not been visited, then mark it 
+            // visited and enqueue it 
+            ArrayList<Coordinate> nextTiles = adjacentTiles(currentTile); 
+            for (Coordinate nextTile: nextTiles){ 
+                int n = i.next(); 
+                if (!visited[n]) 
+                { 
+                	
+                    visited[n] = true; 
+                    queue.add(n); 
+                } 
+            } 
+        } 
+	    
+	}
+	public ArrayList<Coordinates> adjacentTiles(Coordinate position, ArrayList<Coordinate> movement){
+		for (Coordinate move:movement){
+			
+		}
+	}
+
 
 	// Coordinate initialGuess;
 	// boolean notSouth = true;
@@ -73,6 +130,7 @@ public class MyAutoController extends CarController {
 			}
 		}
 	}
+	
 
 	/**
 	 * Check if you have a wall in front of you!
