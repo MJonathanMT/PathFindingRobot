@@ -24,10 +24,27 @@ public class MyAutoController extends CarController {
 
 	// Coordinate initialGuess;
 	// boolean notSouth = true;
+	
+	
+	// Set a record of map coordinates
+	private HashMap<Coordinate, MapTile> mapCoordinates;
+	Iterator it = mp.entrySet().iterator();
+	    while (it.hasNext()) { 
+	        Map.Entry pair = (Map.Entry)it.next();
+	        System.out.println(pair.getKey() + " = " + pair.getValue());
+	        it.remove(); // avoids a ConcurrentModificationException
+	    }
+	
+	public void updateMap(HashMap<Coordinate, MapTile> mapCoordinates, HashMap<Coordinate, MapTile> currentView) {
+		// Add everything in currentView not in mapCoordinates to mapCoordinates
+	    mapCoordinates.putAll(Maps.difference(currentView, mapCoordinates).entriesOnlyOnLeft());
+	}
 	@Override
 	public void update() {
 		// Gets what the car can see
 		HashMap<Coordinate, MapTile> currentView = getView();
+		
+		updateMap(mapCoordinates, currentView);
 
 		// checkStateChange();
 		if (getSpeed() < CAR_MAX_SPEED && !checkWallAhead(getOrientation(), currentView)) { // Need speed to turn and progress toward the exit
