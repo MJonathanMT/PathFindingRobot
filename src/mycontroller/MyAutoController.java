@@ -12,6 +12,8 @@ public class MyAutoController extends CarController {
 		// How many minimum units the wall is away from the player.
 		private int wallSensitivity = 1;
 		
+		private HashMap<Coordinate, MapTile> map = new HashMap<>();
+		
 		private boolean isFollowingWall = false; // This is set to true when the car starts sticking to a wall.
 		
 		// Car Speed to move at
@@ -27,13 +29,17 @@ public class MyAutoController extends CarController {
 		public void update() {
 			// Gets what the car can see
 			HashMap<Coordinate, MapTile> currentView = getView();
+			map.putAll(currentView);
 			
 			// checkStateChange();
-			if(getSpeed() < CAR_MAX_SPEED && !checkWallAhead(getOrientation(),currentView)) {       // Need speed to turn and progress toward the exit
+			if(getSpeed() < CAR_MAX_SPEED) {       // Need speed to turn and progress toward the exit
 				applyForwardAcceleration();   // Tough luck if there's a wall in the way
 			}
+			if (getSpeed() >= 0 && checkFollowingWall(getOrientation(), currentView) && checkWallAhead(getOrientation(),currentView)) {
+				applyReverseAcceleration();
+				isFollowingWall = false;
+			}
 			if (isFollowingWall) {
-				applyBrake();
 				// If wall no longer on left, turn left
 				if(!checkFollowingWall(getOrientation(), currentView)) {
 					turnLeft();
@@ -62,7 +68,7 @@ public class MyAutoController extends CarController {
 			return check(orientation, currentView);
 		}
 		
-		/**
+		/**x
 		 * Check if the wall is on your left hand side given your orientation
 		 * @param orientation
 		 * @param currentView
@@ -94,7 +100,7 @@ public class MyAutoController extends CarController {
 			Coordinate currentPosition = new Coordinate(getPosition());
 			for(int i = 0; i <= wallSensitivity; i++){
 				MapTile tile = currentView.get(new Coordinate(currentPosition.x+i*x_off, currentPosition.y+i*y_off));
-				if(tile.isType(MapTile.Type.WALL)){
+				if(tile.isType(MapTile.Type.WALL) || tile.isType(MapTile.Type.TRAP)){
 					return true;
 				}
 			}

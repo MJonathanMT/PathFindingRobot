@@ -2,6 +2,6 @@ package mycontroller.stratergy;
 
 import world.Car;
 
-interface HealthStratergy extends Stratergy {
-	public void update(Car car);
+abstract class HealthStratergy extends Stratergy {
+	public abstract void update(Car car);
 }
