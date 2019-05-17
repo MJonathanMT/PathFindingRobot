@@ -51,9 +51,9 @@ public class MyAutoController extends CarController {
 			applyForwardAcceleration(); // Tough luck if there's a wall in the way
 		}
 		
-		if (locatedParcel) {
-			
-		}
+//		if (locatedParcel) {
+//			
+//		}
 		if (isFollowingWall) {
 			// If wall no longer on left, turn left
 			if (!checkFollowingWall(getOrientation(), currentView)) {
@@ -82,18 +82,7 @@ public class MyAutoController extends CarController {
 	 * @return
 	 */
 	private boolean checkWallAhead(WorldSpatial.Direction orientation, HashMap<Coordinate, MapTile> currentView) {
-		switch (orientation) {
-		case EAST:
-			return checkEast(currentView);
-		case NORTH:
-			return checkNorth(currentView);
-		case SOUTH:
-			return checkSouth(currentView);
-		case WEST:
-			return checkWest(currentView);
-		default:
-			return false;
-		}
+		return check(orientation, currentView);
 	}
 
 	/**
