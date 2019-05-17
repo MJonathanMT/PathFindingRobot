@@ -2,6 +2,8 @@ package mycontroller;
 import controller.CarController;
 import world.Car;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 import tiles.MapTile;
 import utilities.Coordinate;
@@ -14,7 +16,7 @@ public class MyAutoController extends CarController {
 	private int wallSensitivity = 1;
 
 	private boolean isFollowingWall = false; // This is set to true when the car starts sticking to a wall.
-
+	
 	// Car Speed to move at
 	private final int CAR_MAX_SPEED = 1;
 
@@ -28,17 +30,15 @@ public class MyAutoController extends CarController {
 	
 	// Set a record of map coordinates
 	private HashMap<Coordinate, MapTile> mapCoordinates;
-	Iterator it = mp.entrySet().iterator();
-	    while (it.hasNext()) { 
-	        Map.Entry pair = (Map.Entry)it.next();
-	        System.out.println(pair.getKey() + " = " + pair.getValue());
-	        it.remove(); // avoids a ConcurrentModificationException
-	    }
+	private boolean locatedParcel = false;
 	
 	public void updateMap(HashMap<Coordinate, MapTile> mapCoordinates, HashMap<Coordinate, MapTile> currentView) {
 		// Add everything in currentView not in mapCoordinates to mapCoordinates
-	    mapCoordinates.putAll(Maps.difference(currentView, mapCoordinates).entriesOnlyOnLeft());
+	    mapCoordinates.putAll(currentView);
 	}
+//	public void removeTile(HashMap<Coordinate, MapTile> mapCoordinates, item) {
+//		mapCoordinates.remove(arg0);
+//	}
 	@Override
 	public void update() {
 		// Gets what the car can see
@@ -49,6 +49,10 @@ public class MyAutoController extends CarController {
 		// checkStateChange();
 		if (getSpeed() < CAR_MAX_SPEED && !checkWallAhead(getOrientation(), currentView)) { // Need speed to turn and progress toward the exit
 			applyForwardAcceleration(); // Tough luck if there's a wall in the way
+		}
+		
+		if (locatedParcel) {
+			
 		}
 		if (isFollowingWall) {
 			// If wall no longer on left, turn left

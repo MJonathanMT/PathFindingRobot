@@ -1,0 +1,15 @@
+2019-05-17 15:38:01 INFO  Car - Speed:   0.0; Angle:   EAST; Position:   1,1; Parcels:      0; Health: 100.0; Health Usage: 100.0; Fuel: 250.0; Tile: START
+2019-05-17 15:38:01 INFO  Car - Speed:   1.0; Angle:   EAST; Position:   2,1; Parcels:      0; Health: 100.0; Health Usage: 100.0; Fuel: 249.0; Tile: ROAD
+2019-05-17 15:38:01 INFO  Car - Speed:   1.0; Angle:   EAST; Position:   3,1; Parcels:      0; Health: 100.0; Health Usage: 100.0; Fuel: 248.0; Tile: ROAD
+2019-05-17 15:38:02 INFO  Car - Speed:   1.0; Angle:   EAST; Position:   4,1; Parcels:      0; Health: 100.0; Health Usage: 100.0; Fuel: 247.0; Tile: ROAD
+2019-05-17 15:38:02 INFO  Car - Speed:   1.0; Angle:   EAST; Position:   5,1; Parcels:      0; Health: 100.0; Health Usage: 100.0; Fuel: 246.0; Tile: ROAD
+2019-05-17 15:38:02 INFO  Car - Speed:   1.0; Angle:   EAST; Position:   6,1; Parcels:      0; Health: 100.0; Health Usage: 100.0; Fuel: 245.0; Tile: ROAD
+2019-05-17 15:38:02 INFO  Car - Speed:   1.0; Angle:   EAST; Position:   7,1; Parcels:      0; Health: 100.0; Health Usage: 100.0; Fuel: 244.0; Tile: ROAD
+2019-05-17 15:38:03 INFO  Car - Speed:   1.0; Angle:   EAST; Position:   8,1; Parcels:      0; Health: 100.0; Health Usage: 100.0; Fuel: 243.0; Tile: ROAD
+2019-05-17 15:38:03 INFO  Car - Speed:   1.0; Angle:   EAST; Position:   9,1; Parcels:      0; Health: 100.0; Health Usage: 100.0; Fuel: 242.0; Tile: ROAD
+2019-05-17 15:38:03 INFO  Car - Speed:   0.0; Angle:  SOUTH; Position:   9,1; Parcels:      0; Health:  95.0; Health Usage: 100.0; Fuel: 241.0; Tile: ROAD
+2019-05-17 15:38:03 INFO  Car - Speed:   0.0; Angle:  SOUTH; Position:   9,1; Parcels:      0; Health:  90.0; Health Usage: 100.0; Fuel: 240.0; Tile: ROAD
+2019-05-17 15:38:04 INFO  Car - Speed:   0.0; Angle:  SOUTH; Position:   9,1; Parcels:      0; Health:  85.0; Health Usage: 100.0; Fuel: 239.0; Tile: ROAD
+2019-05-17 15:38:04 INFO  Car - Speed:   0.0; Angle:  SOUTH; Position:   9,1; Parcels:      0; Health:  80.0; Health Usage: 100.0; Fuel: 238.0; Tile: ROAD
+2019-05-17 15:38:04 INFO  Car - Speed:   0.0; Angle:  SOUTH; Position:   9,1; Parcels:      0; Health:  75.0; Health Usage: 100.0; Fuel: 237.0; Tile: ROAD
+2019-05-17 15:38:04 INFO  Car - Speed:   0.0; Angle:  SOUTH; Position:   9,1; Parcels:      0; Health:  70.0; Health Usage: 100.0; Fuel: 236.0; Tile: ROAD
