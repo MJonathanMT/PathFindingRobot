@@ -104,7 +104,7 @@ public class MyAutoController extends CarController {
 	 * @returnWorldSpatial.Direction orientation
 	 */
 	private boolean checkFollowingWall(WorldSpatial.Direction orientation, HashMap<Coordinate, MapTile> currentView) {
-		return checkWall(currentView, orientation);
+		return check(orientation, currentView);
 	}
 
 	/**
@@ -114,88 +114,37 @@ public class MyAutoController extends CarController {
 	 * to wallSensitivity amount of tiles to the left. checkNorth will check up to
 	 * wallSensitivity amount of tiles to the top. checkSouth will check up to
 	 * wallSensitivity amount of tiles below.
-	 */
-	public boolean checkEast(HashMap<Coordinate, MapTile> currentView) {
-		// Check tiles to my right
-		Coordinate currentPosition = new Coordinate(getPosition());
-		for (int i = 0; i <= wallSensitivity; i++) {
-			MapTile tile = currentView.get(new Coordinate(currentPosition.x + i, currentPosition.y));
-			if (tile.isType(MapTile.Type.WALL)) {
-				return true;
-			}
-		}
-		return false;
-	}
+	 */	
 	
-	public boolean checkWall(HashMap<Coordinate, MapTile> currentView, WorldSpatial.Direction orientation) {
-		int x_off, y_off;
-		
-		switch (orientation) {
+	public boolean check(WorldSpatial.Direction orientation, HashMap<Coordinate, MapTile> currentView) {
+		int x_off = 0, y_off = 0;
+		switch(orientation){
 		case EAST:
 			x_off = 1;
-			y_off = 0;
 			break;
 		case NORTH:
-			x_off = 0;
 			y_off = 1;
 			break;
 		case SOUTH:
-			x_off = 0;
 			y_off = -1;
 			break;
 		case WEST:
 			x_off = -1;
-			y_off = 0;
 			break;
 		default:
 			return false;
-		}
+		}	
 		
-		// Check tiles to my right
 		Coordinate currentPosition = new Coordinate(getPosition());
-		for (int i = 0; i <= wallSensitivity; i++) {
-			MapTile tile = currentView.get(new Coordinate(currentPosition.x + i * x_off, currentPosition.y + i * y_off));
-			if (tile.isType(MapTile.Type.WALL)) {
+		for(int i = 0; i <= wallSensitivity; i++){
+			MapTile tile = currentView.get(new Coordinate(currentPosition.x+i*x_off, currentPosition.y+i*y_off));
+			if(tile.isType(MapTile.Type.WALL)){
 				return true;
 			}
 		}
 		return false;
 	}
 
-	public boolean checkWest(HashMap<Coordinate, MapTile> currentView) {
-		// Check tiles to my left
-		Coordinate currentPosition = new Coordinate(getPosition());
-		for (int i = 0; i <= wallSensitivity; i++) {
-			MapTile tile = currentView.get(new Coordinate(currentPosition.x - i, currentPosition.y));
-			if (tile.isType(MapTile.Type.WALL)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public boolean checkNorth(HashMap<Coordinate, MapTile> currentView) {
-		// Check tiles to towards the top
-		Coordinate currentPosition = new Coordinate(getPosition());
-		for (int i = 0; i <= wallSensitivity; i++) {
-			MapTile tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y + i));
-			if (tile.isType(MapTile.Type.WALL)) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	public boolean checkSouth(HashMap<Coordinate, MapTile> currentView) {
-		// Check tiles towards the bottom
-		Coordinate currentPosition = new Coordinate(getPosition());
-		for (int i = 0; i <= wallSensitivity; i++) {
-			MapTile tile = currentView.get(new Coordinate(currentPosition.x, currentPosition.y - i));
-			if (tile.isType(MapTile.Type.WALL)) {
-				return true;
-			}
-		}
-		return false;
-	}
+	
 
 }
