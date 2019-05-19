@@ -3,9 +3,7 @@ package mycontroller;
 import controller.CarController;
 import world.Car;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Map.Entry;
 import java.util.Queue;
 
 import tiles.MapTile;
@@ -111,37 +109,24 @@ public class MyAutoController extends CarController {
 			return false;
 		}
 		
-		boolean[] visited; 
 		
-		public void bfs(HashMap<Coordinate, MapTile> currentView) {
-			Queue<Coordinate> q = new LinkedList<Coordinate>();
-			clearVisited();
+		
+		public void bfs(Coordinate position, HashMap<Coordinate, MapTile> currentView) {
+			Queue<Coordinate> queue = new LinkedList<Coordinate>();
+			HashMap<Coordinate, Boolean> visited = new HashMap<Coordinate, Boolean>();
+	
 			
-			Coordinate firstKey = map.keySet().iterator().next();
-			q.add(firstKey);
+			queue.add(position);
+			visited.put(position, true);
+			Coordinate nextNode;
 			
-			
-			for(int i = 0; i< visited.length; i++) {
-				visited[i] = false;
-			}
-			
-			while(!q.isEmpty()) {
-				int nextNode;
+			while(!queue.isEmpty()) {
 				int i;
-				nextNode = q.remove();
+				nextNode = queue.remove(); //dequeue
 				
-				if(!visited[nextNode]) {
-					visited[nextNode] = true;
-					
-				}
 			}
 			
 		}
 		
-		public void clearVisited(){
-		      int i;
-		      for (i = 0; i < visited.length; i++)
-		         visited[i] = false;
-		   }
 			
 	}
