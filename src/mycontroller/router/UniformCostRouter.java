@@ -19,7 +19,7 @@ public class UniformCostRouter implements IRouter {
 	}
 
 	public Coordinate getRoute(Map<Coordinate, MapTile> map, Coordinate src, Set<Coordinate> dests) {
-		if (src == null || dests.contains(src) || !map.containsKey(src)) {
+		if (src == null || dests.isEmpty() || dests.contains(src) || !map.containsKey(src)) {
 			return null;
 		}
 
@@ -44,6 +44,7 @@ public class UniformCostRouter implements IRouter {
 				return node.coord;
 			}
 
+			// add neighbors, if we should 
 			for (Node neighbor : node.getNeighbors(map)) {
 				penalty.applyPenalty(neighbor);
 

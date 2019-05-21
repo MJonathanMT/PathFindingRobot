@@ -5,6 +5,11 @@ import world.Car;
 import exceptions.UnsupportedModeException;
 
 public class PenaltyFactory {
+	/**
+	 * Gets the current penalty applicable for the given simulation
+	 * @return
+	 * @throws UnsupportedModeException
+	 */
 	public static IPenalty getCurrentPenalty() throws UnsupportedModeException {
 		if (Simulation.toConserve().equals(Simulation.StrategyMode.HEALTH)) {
 			return HealthPenalty.getInstance();

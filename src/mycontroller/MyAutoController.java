@@ -19,13 +19,9 @@ public class MyAutoController extends CarController {
 
 	private Map<Coordinate, MapTile> map;
 
-	private boolean followingLeft = false;
-
 	private WorldSpatial.RelativeDirection followingDirection = null;
 
 	private IRouter router;
-	// Car Speed to move at
-//	private final int CAR_MAX_SPEED = 1;
 
 	public MyAutoController(Car car) throws UnsupportedModeException {
 		super(car);
@@ -38,13 +34,18 @@ public class MyAutoController extends CarController {
 	public void update() {
 		updateMap();
 
+		// try our router
 		if (route()) {
 			return;
 		}
 
+		// resort to wall following
 		followWall();
 	}
 
+	/**
+	 * Updates map with current view
+	 */
 	private void updateMap() {
 		Map<Coordinate, MapTile> view = getView();
 		for (Coordinate coord : view.keySet()) {
@@ -54,29 +55,30 @@ public class MyAutoController extends CarController {
 		}
 	}
 
+	/**
+	 * Attempts to follow a wall currently being followed, else tries to follow a wall
+	 */
 	private void followWall() {
-		if (getSpeed() >= 0 && followingDirection != null && checkTravellable(getOrientation())) {
+		if (getSpeed() >= 0 && followingDirection != null && checkFollowable(getOrientation())) {
 			applyReverseAcceleration();
 			followingDirection = null;
 		} else {
 			applyForwardAcceleration();
 		}
 
+		boolean left = (followingDirection == WorldSpatial.RelativeDirection.LEFT);
+
 		if (followingDirection != null) {
-			// If wall no longer on left, turn left
-			if (!checkFollowing(getOrientation(), followingDirection)) {
-				if (followingLeft)
+			if (!checkFollowing(followingDirection)) {
+				if (left)
 					turnLeft();
 				else
 					turnRight();
-			} else {
-				// If wall on left and wall straight ahead, turn right
-				if (checkTravellable(getOrientation())) {
-					if (followingLeft)
-						turnRight();
-					else
-						turnLeft();
-				}
+			} else if (checkFollowable(getOrientation())) {
+				if (left)
+					turnRight();
+				else
+					turnLeft();
 			}
 		} else {
 			tryFollowWall();
@@ -84,39 +86,39 @@ public class MyAutoController extends CarController {
 	}
 
 	private void tryFollowWall() {
-		if (checkFollowing(getOrientation(), WorldSpatial.RelativeDirection.LEFT)) {
+		if (checkFollowing(WorldSpatial.RelativeDirection.LEFT)) {
 			followingDirection = WorldSpatial.RelativeDirection.LEFT;
-			followingLeft = true;
-
-		} else if (checkFollowing(getOrientation(), WorldSpatial.RelativeDirection.RIGHT)) {
+		} else if (checkFollowing(WorldSpatial.RelativeDirection.RIGHT)) {
 			followingDirection = WorldSpatial.RelativeDirection.RIGHT;
-			followingLeft = false;
 		}
-		// Start wall-following (with wall on left) as soon as we see a wall straight
-		// ahead
-		if (checkTravellable(getOrientation())) {
+		if (checkFollowable(getOrientation())) {
 			turnLeft();
 			followingDirection = WorldSpatial.RelativeDirection.RIGHT;
-			followingLeft = false;
 		}
 	}
 
 	/**
-	 * x Check if the wall is on your left hand side given your orientation
-	 * 
-	 * @param orientation
-	 * @param currentView
-	 * @return
+	 * Checks if we are following a wall
+	 * @param relative direction to check the wall at
+	 * @return boolean
 	 */
-	private boolean checkFollowing(WorldSpatial.Direction orientation, WorldSpatial.RelativeDirection relative) {
-		return checkTravellable(WorldSpatial.changeDirection(orientation, relative));
+	private boolean checkFollowing(WorldSpatial.RelativeDirection relative) {
+		return checkFollowable(WorldSpatial.changeDirection(getOrientation(), relative));
 	}
 
-	public boolean checkTravellable(WorldSpatial.Direction orientation) {
+	/**
+	 * Checks if we can follow a wall in a given direction
+	 * @param direction direction to check
+	 * @return
+	 */
+	private boolean checkFollowable(WorldSpatial.Direction direction) {
 		int x_off = 0, y_off = 0;
-		switch (orientation) {
+		switch (direction) {
 		case EAST:
 			x_off = 1;
+			break;
+		case WEST:
+			x_off = -1;
 			break;
 		case NORTH:
 			y_off = 1;
@@ -124,36 +126,20 @@ public class MyAutoController extends CarController {
 		case SOUTH:
 			y_off = -1;
 			break;
-		case WEST:
-			x_off = -1;
-			break;
-		default:
-			return false;
 		}
 
 		Coordinate currentPosition = new Coordinate(getPosition());
 		for (int i = 0; i <= wallSensitivity; i++) {
-			Coordinate relativeCoordinate = getRelativeCoordinate(currentPosition, x_off, y_off);
+			Coordinate relativeCoordinate = new Coordinate(currentPosition.x + x_off, currentPosition.y + y_off);
 			if (!onScreen(relativeCoordinate)) {
 				return true;
 			}
-
 			MapTile tile = map.get(relativeCoordinate);
-			if (tile.isType(MapTile.Type.WALL) || tile instanceof LavaTrap) {
+			if (tile.isType(MapTile.Type.WALL)) {
 				return true;
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * @param coordinate Coordinate
-	 * @param x_off      X offset
-	 * @param y_off      Y offset
-	 * @return Coordinate with coordinates (x_off, y_off) relative to coordinate
-	 */
-	private Coordinate getRelativeCoordinate(Coordinate coordinate, int x_off, int y_off) {
-		return new Coordinate(coordinate.x + x_off, coordinate.y + y_off);
 	}
 
 	/**
@@ -161,66 +147,71 @@ public class MyAutoController extends CarController {
 	 * @return true if Coordinate is on screen, false otherwise
 	 */
 	private boolean onScreen(Coordinate coordinate) {
-		return 0 <= coordinate.x && coordinate.x <= mapWidth() && 0 <= coordinate.y && coordinate.y <= mapHeight();
+		return 0 <= coordinate.x && coordinate.x < mapWidth() && 0 <= coordinate.y && coordinate.y < mapHeight();
 	}
 
+	/**
+	 * Uses the IRouter, router, to find a route to a current destination
+	 * @return boolean, true if router succeeded, else false
+	 */
 	private boolean route() {
 		Set<Coordinate> dests = getDests();
-		
+
 		Coordinate dest = router.getRoute(map, new Coordinate(getPosition()), dests);
-		
+
 		if (dest != null) {
 			routeTowards(dest);
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
+	/** 
+	 * Gets the current destinations we want to travel to.
+	 * If we have not picked up enough parcels, it will be a set of known parcel coords, else the goal
+	 * @return Set<Coordinate>
+	 */
 	private Set<Coordinate> getDests() {
 		Set<Coordinate> dests = new HashSet<>();
-		
-		boolean toFinish = hasEnoughParcels();
+
+		boolean finish = (numParcelsFound() >= numParcels());
 		for (Coordinate coord : map.keySet()) {
-			if ((toFinish && map.get(coord).isType(MapTile.Type.FINISH)
-					|| (!toFinish && map.get(coord) instanceof ParcelTrap))) {
+			if ((finish && map.get(coord).isType(MapTile.Type.FINISH)
+					|| (!finish && map.get(coord) instanceof ParcelTrap))) {
 				dests.add(coord);
 			}
 		}
-		
+
 		return dests;
 	}
 
 	private void routeTowards(Coordinate dest) {
 		Coordinate currentPos = new Coordinate(getPosition());
 
-		WorldSpatial.Direction dir = null, orientation = getOrientation();
+		WorldSpatial.Direction orientation = getOrientation(), direction;
 
 		if (currentPos.x > dest.x) {
-			dir = WorldSpatial.Direction.WEST;
+			direction = WorldSpatial.Direction.WEST;
 		} else if (currentPos.x < dest.x) {
-			dir = WorldSpatial.Direction.EAST;
+			direction = WorldSpatial.Direction.EAST;
 		} else if (currentPos.y > dest.y) {
-			dir = WorldSpatial.Direction.SOUTH;
+			direction = WorldSpatial.Direction.SOUTH;
 		} else if (currentPos.y < dest.y) {
-			dir = WorldSpatial.Direction.NORTH;
+			direction = WorldSpatial.Direction.NORTH;
 		} else {
 			return;
 		}
 
 		applyForwardAcceleration();
-		if (dir == orientation) {
+		if (direction == orientation) {
 			return;
-		} else if (dir == WorldSpatial.changeDirection(orientation, WorldSpatial.RelativeDirection.LEFT)) {
+		} else if (direction == WorldSpatial.changeDirection(orientation, WorldSpatial.RelativeDirection.LEFT)) {
 			turnLeft();
-		} else if (dir == WorldSpatial.changeDirection(orientation, WorldSpatial.RelativeDirection.RIGHT)) {
+		} else if (direction == WorldSpatial.changeDirection(orientation, WorldSpatial.RelativeDirection.RIGHT)) {
 			turnRight();
 		} else {
 			applyReverseAcceleration();
 		}
-	}
-
-	private boolean hasEnoughParcels() {
-		return numParcelsFound() >= numParcels();
 	}
 }

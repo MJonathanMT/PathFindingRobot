@@ -4,18 +4,19 @@ import mycontroller.router.Node;
 import tiles.*;
 
 public class HealthPenalty implements IPenalty {
+	// singleton
 	public static HealthPenalty instance = null;
-	
+
 	private HealthPenalty() {
 	}
-	
+
 	public static HealthPenalty getInstance() {
-		if (instance == null) 
+		if (instance == null)
 			instance = new HealthPenalty();
-		
+
 		return instance;
 	}
-	
+
 	public void applyPenalty(Node node) {
 		if (node.tile instanceof LavaTrap) {
 			node.dist += 100;

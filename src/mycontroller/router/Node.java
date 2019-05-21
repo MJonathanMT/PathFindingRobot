@@ -11,7 +11,6 @@ public class Node implements Comparable<Node> {
 	private static final int[][] offsets = { { 0, 1 }, { 0, -1 }, { 1, 0 }, { -1, 0 } };
 	private static final int X = 0;
 	private static final int Y = 1;
-	
 
 	public Coordinate coord;
 	public MapTile tile;
@@ -56,8 +55,8 @@ public class Node implements Comparable<Node> {
 
 	@Override
 	public int compareTo(Node arg0) {
-		return (int) (dist - arg0.dist);
+		float diff = dist - arg0.dist;
+		return diff < .0f ? -1 : (diff > .0f ? 1 : 0);
 	}
-	
-	
+
 }
