@@ -19,7 +19,7 @@ public class HealthPenalty implements IPenalty {
 
 	public void applyPenalty(Node node) {
 		if (node.tile instanceof LavaTrap) {
-			node.dist += 100;
+			node.dist += 200;
 		}
 		if (node.tile instanceof WaterTrap || node.tile instanceof HealthTrap) {
 			node.dist -= 0.5;

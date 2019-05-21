@@ -1,13 +1,12 @@
 package mycontroller.penalty;
 
 import swen30006.driving.Simulation;
-import world.Car;
 import exceptions.UnsupportedModeException;
 
 public class PenaltyFactory {
 	/**
 	 * Gets the current penalty applicable for the given simulation
-	 * @return
+	 * @return IPenalty
 	 * @throws UnsupportedModeException
 	 */
 	public static IPenalty getCurrentPenalty() throws UnsupportedModeException {
