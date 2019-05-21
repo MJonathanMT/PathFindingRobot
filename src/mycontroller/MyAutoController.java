@@ -16,7 +16,7 @@ public class MyAutoController extends CarController {
 	// How many minimum units the wall is away from the player.
 	private int wallSensitivity = 2;
 
-	private Map<Coordinate, MapTile> map = new HashMap<>();
+	private Map<Coordinate, MapTile> map;
 
 	private boolean followingLeft = false;
 
@@ -26,19 +26,23 @@ public class MyAutoController extends CarController {
 	// Car Speed to move at
 //	private final int CAR_MAX_SPEED = 1;
 
-//	private Strategy strategy;
 
 	public MyAutoController(Car car) throws UnsupportedModeException {
 		super(car);
 
+		this.map = getMap();
 		this.router = new Router();
-//		strategy = StrategyFactory.getCurrentStrategy();
 	}
 
 	@Override
 	public void update() {
 		// update current knowledge of world
-		map.putAll(getView());
+		Map<Coordinate, MapTile> view = getView();
+		for (Coordinate coord : view.keySet()) {
+			if (onScreen(coord)) {
+				map.put(coord, view.get(coord));
+			}
+		}
 		
 		followWall();
 	}

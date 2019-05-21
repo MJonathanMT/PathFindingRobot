@@ -7,9 +7,9 @@ import exceptions.UnsupportedModeException;
 public class PenaltyFactory {
 	public static IPenalty getCurrentPenalty() throws UnsupportedModeException {
 		if (Simulation.toConserve().equals(Simulation.StrategyMode.HEALTH)) {
-			return new HealthPenalty();
+			return HealthPenalty.getInstance();
 		} else {
-			return new FuelPenalty();
+			return FuelPenalty.getInstance();
 		}
 	}
 }

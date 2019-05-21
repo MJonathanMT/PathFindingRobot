@@ -9,21 +9,20 @@ import utilities.Coordinate;
 
 public class Node {
 	public static final int[][] offsets = { { 0, 1 }, { 0, -1 }, { 1, 0 }, { -1, 0 } };
-	
+
 	public Coordinate coord;
 	public MapTile tile;
 	public Node parent;
-
 	public int dist = 0;
 
 	public Node(Coordinate coord, MapTile tile, Node parent) {
 		this.coord = coord;
 		this.tile = tile;
 		this.parent = parent;
-		this.dist = 0;
+		this.dist = 0; // set later to a better value if need be
 	}
-	
-	public List<Node> getNeighbours(Map<Coordinate, MapTile> map) {
+
+	public List<Node> getNeighbors(Map<Coordinate, MapTile> map) {
 		List<Node> list = new ArrayList<Node>();
 
 		for (int[] offset : offsets) {
@@ -37,5 +36,16 @@ public class Node {
 		}
 
 		return list;
+	}
+
+	public boolean equals(Object o) {
+		if (o == this) {
+			return true;
+		}
+		if (!(o instanceof Node)) {
+			return false;
+		}
+		Node node = (Node) o;
+		return coord.equals(node.coord);
 	}
 }
