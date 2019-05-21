@@ -58,5 +58,4 @@ public class Node implements Comparable<Node> {
 		float diff = dist - arg0.dist;
 		return diff < .0f ? -1 : (diff > .0f ? 1 : 0);
 	}
-
 }

@@ -26,6 +26,8 @@ public class MyAutoController extends CarController {
 	public MyAutoController(Car car) throws UnsupportedModeException {
 		super(car);
 
+		// start with as much knowledge as we can
+		// we will fill this in as we go
 		this.map = getMap();
 		this.router = new UniformCostRouter();
 	}
@@ -69,12 +71,16 @@ public class MyAutoController extends CarController {
 		boolean left = (followingDirection == WorldSpatial.RelativeDirection.LEFT);
 
 		if (followingDirection != null) {
+			// check if we are still following a wall
 			if (!checkFollowing(followingDirection)) {
+				// turn to follow the wall
 				if (left)
 					turnLeft();
 				else
 					turnRight();
+				// check if we can follow something ahead
 			} else if (checkFollowable(getOrientation())) {
+				// turn to follow the wall
 				if (left)
 					turnRight();
 				else
@@ -86,14 +92,19 @@ public class MyAutoController extends CarController {
 	}
 
 	private void tryFollowWall() {
-		if (checkFollowing(WorldSpatial.RelativeDirection.LEFT)) {
-			followingDirection = WorldSpatial.RelativeDirection.LEFT;
-		} else if (checkFollowing(WorldSpatial.RelativeDirection.RIGHT)) {
-			followingDirection = WorldSpatial.RelativeDirection.RIGHT;
-		}
+		// default to left if a wall is direcly ahead
 		if (checkFollowable(getOrientation())) {
 			turnLeft();
 			followingDirection = WorldSpatial.RelativeDirection.RIGHT;
+			return;
+		}
+		
+		// try follow a wall for each relative direction
+		for (WorldSpatial.RelativeDirection relDirection : WorldSpatial.RelativeDirection.values()) {
+			if (checkFollowing(relDirection)) {
+				followingDirection = relDirection;
+				break;
+			}
 		}
 	}
 
@@ -169,7 +180,7 @@ public class MyAutoController extends CarController {
 
 	/** 
 	 * Gets the current destinations we want to travel to.
-	 * If we have not picked up enough parcels, it will be a set of known parcel coords, else the goal
+	 * If we have not picked up enough parcels, it will be a set of known parcel coords, else the finishes
 	 * @return Set<Coordinate>
 	 */
 	private Set<Coordinate> getDests() {
