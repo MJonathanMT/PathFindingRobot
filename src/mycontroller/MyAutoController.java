@@ -2,7 +2,7 @@ package mycontroller;
 
 import controller.CarController;
 import exceptions.UnsupportedModeException;
-import mycontroller.strategy.*;
+import mycontroller.router.*;
 import world.Car;
 
 import java.util.HashMap;
@@ -21,6 +21,8 @@ public class MyAutoController extends CarController {
 	private boolean followingLeft = false;
 
 	private WorldSpatial.RelativeDirection followingDirection = null;
+	
+	private IRouter router;
 	// Car Speed to move at
 //	private final int CAR_MAX_SPEED = 1;
 
@@ -29,15 +31,19 @@ public class MyAutoController extends CarController {
 	public MyAutoController(Car car) throws UnsupportedModeException {
 		super(car);
 
+		this.router = new Router();
 //		strategy = StrategyFactory.getCurrentStrategy();
 	}
 
 	@Override
 	public void update() {
 		// update current knowledge of world
-		Map<Coordinate, MapTile> currentView = getView();
-		map.putAll(currentView);
-
+		map.putAll(getView());
+		
+		followWall();
+	}
+	
+	private void followWall() {
 		if (getSpeed() >= 0 && followingDirection != null && checkAhead(getOrientation())) {
 			applyReverseAcceleration();
 			followingDirection = null;
@@ -62,11 +68,11 @@ public class MyAutoController extends CarController {
 				}
 			}
 		} else {
-			tryFollowWall(currentView);
+			tryFollowWall();
 		}
 	}
 
-	private void tryFollowWall(Map<Coordinate, MapTile> currentView) {
+	private void tryFollowWall() {
 		if (checkFollowing(getOrientation(), WorldSpatial.RelativeDirection.LEFT)) {
 			followingDirection = WorldSpatial.RelativeDirection.LEFT;
 			followingLeft = true;
