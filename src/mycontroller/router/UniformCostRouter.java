@@ -19,10 +19,7 @@ public class UniformCostRouter implements IRouter {
 	}
 
 	public Coordinate getRoute(Map<Coordinate, MapTile> map, Coordinate src, Set<Coordinate> dests) {
-		if (src == null || dests.contains(src)) {
-			return null;
-		}
-		if (!map.containsKey(src)) {
+		if (src == null || dests.contains(src) || !map.containsKey(src)) {
 			return null;
 		}
 
