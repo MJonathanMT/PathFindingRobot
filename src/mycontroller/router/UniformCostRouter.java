@@ -3,6 +3,7 @@ package mycontroller.router;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 import exceptions.UnsupportedModeException;
 import tiles.MapTile;
@@ -10,32 +11,35 @@ import utilities.Coordinate;
 
 import mycontroller.penalty.*;
 
-public class Router implements IRouter {
+public class UniformCostRouter implements IRouter {
 	private IPenalty penalty;
 
-	public Router() throws UnsupportedModeException {
+	public UniformCostRouter() throws UnsupportedModeException {
 		this.penalty = PenaltyFactory.getCurrentPenalty();
 	}
 
-	public Coordinate getRoute(Map<Coordinate, MapTile> map, Coordinate src, Coordinate dest) {
-		if (!map.containsKey(src) || !map.containsKey(dest)) {
+	public Coordinate getRoute(Map<Coordinate, MapTile> map, Coordinate src, Set<Coordinate> dests) {
+		if (src == null || dests.contains(src)) {
+			return null;
+		}
+		if (!map.containsKey(src)) {
 			return null;
 		}
 
-		PriorityQueue<Node> queue = new PriorityQueue<>(new NodeComparator());
+		PriorityQueue<Node> queue = new PriorityQueue<>();
 		queue.add(new Node(src, map.get(src), null));
 
-		Map<Coordinate, Integer> seen = new HashMap<>();
-		seen.put(src, 0);
+		Map<Coordinate, Float> seen = new HashMap<>();
+		seen.put(src, .0f);
 
 		while (!queue.isEmpty()) {
 			Node node = queue.poll();
 
 			// found destination?
-			if (node.coord.equals(dest)) {
+			if (dests.contains(node.coord)) {
 				// reverse engineer to get back the tile we should go to next
 				Node parent = node.parent;
-				while (parent != null) {
+				while (parent.parent != null) {
 					node = parent;
 					parent = node.parent;
 				}
@@ -46,7 +50,7 @@ public class Router implements IRouter {
 			for (Node neighbor : node.getNeighbors(map)) {
 				penalty.applyPenalty(neighbor);
 
-				if (!seen.containsKey(neighbor.coord) || seen.get(neighbor.coord).compareTo(neighbor.dist) > 0) {
+				if (!seen.containsKey(neighbor.coord) || seen.get(neighbor.coord) > neighbor.dist) {
 					seen.put(neighbor.coord, neighbor.dist);
 					queue.add(neighbor);
 				}

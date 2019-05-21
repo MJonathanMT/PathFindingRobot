@@ -5,8 +5,9 @@ import exceptions.UnsupportedModeException;
 import mycontroller.router.*;
 import world.Car;
 
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import tiles.*;
 import utilities.Coordinate;
@@ -21,34 +22,40 @@ public class MyAutoController extends CarController {
 	private boolean followingLeft = false;
 
 	private WorldSpatial.RelativeDirection followingDirection = null;
-	
+
 	private IRouter router;
 	// Car Speed to move at
 //	private final int CAR_MAX_SPEED = 1;
-
 
 	public MyAutoController(Car car) throws UnsupportedModeException {
 		super(car);
 
 		this.map = getMap();
-		this.router = new Router();
+		this.router = new UniformCostRouter();
 	}
 
 	@Override
 	public void update() {
-		// update current knowledge of world
+		updateMap();
+
+		if (route()) {
+			return;
+		}
+
+		followWall();
+	}
+
+	private void updateMap() {
 		Map<Coordinate, MapTile> view = getView();
 		for (Coordinate coord : view.keySet()) {
 			if (onScreen(coord)) {
 				map.put(coord, view.get(coord));
 			}
 		}
-		
-		followWall();
 	}
-	
+
 	private void followWall() {
-		if (getSpeed() >= 0 && followingDirection != null && checkAhead(getOrientation())) {
+		if (getSpeed() >= 0 && followingDirection != null && checkTravellable(getOrientation())) {
 			applyReverseAcceleration();
 			followingDirection = null;
 		} else {
@@ -64,7 +71,7 @@ public class MyAutoController extends CarController {
 					turnRight();
 			} else {
 				// If wall on left and wall straight ahead, turn right
-				if (checkAhead(getOrientation())) {
+				if (checkTravellable(getOrientation())) {
 					if (followingLeft)
 						turnRight();
 					else
@@ -87,22 +94,11 @@ public class MyAutoController extends CarController {
 		}
 		// Start wall-following (with wall on left) as soon as we see a wall straight
 		// ahead
-		if (checkAhead(getOrientation())) {
+		if (checkTravellable(getOrientation())) {
 			turnLeft();
 			followingDirection = WorldSpatial.RelativeDirection.RIGHT;
 			followingLeft = false;
 		}
-	}
-
-	/**
-	 * Check if you have a wall in front of you!
-	 * 
-	 * @param orientation the orientation we are in based on WorldSpatial
-	 * @param currentView what the car can currently see
-	 * @return
-	 */
-	private boolean checkAhead(WorldSpatial.Direction orientation) {
-		return checkTravellable(orientation);
 	}
 
 	/**
@@ -150,29 +146,11 @@ public class MyAutoController extends CarController {
 		return false;
 	}
 
-//		private int getWallNeighbourCount(Coordinate coordinate) {
-//			if (map.containsKey(coordinate)) {
-//				int count = 0;
-//				int[][] offsets = { { 0, 1 }, { 0, -1 }, { 1, 0 }, { -1, 0 } };
-//				for (int[] offset : offsets) {
-//					Coordinate relativeCoordinate = getRelativeCoordinate(coordinate, offset[0], offset[1]);
-//					if (map.containsKey(relativeCoordinate)) {
-//						MapTile tile = map.get(relativeCoordinate);
-//						if(tile.isType(MapTile.Type.WALL) || tile instanceof LavaTrap){
-//							count++;
-//						}
-//					}
-//				}
-//				return count;
-//			}
-//			return -1;
-//		}
-
 	/**
 	 * @param coordinate Coordinate
 	 * @param x_off      X offset
 	 * @param y_off      Y offset
-	 * @return Cooridnate with coordinates (x_off, y_off) relative to coordinate
+	 * @return Coordinate with coordinates (x_off, y_off) relative to coordinate
 	 */
 	private Coordinate getRelativeCoordinate(Coordinate coordinate, int x_off, int y_off) {
 		return new Coordinate(coordinate.x + x_off, coordinate.y + y_off);
@@ -184,5 +162,65 @@ public class MyAutoController extends CarController {
 	 */
 	private boolean onScreen(Coordinate coordinate) {
 		return 0 <= coordinate.x && coordinate.x <= mapWidth() && 0 <= coordinate.y && coordinate.y <= mapHeight();
+	}
+
+	private boolean route() {
+		Set<Coordinate> dests = getDests();
+		
+		Coordinate dest = router.getRoute(map, new Coordinate(getPosition()), dests);
+		
+		if (dest != null) {
+			routeTowards(dest);
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private Set<Coordinate> getDests() {
+		Set<Coordinate> dests = new HashSet<>();
+		
+		boolean toFinish = hasEnoughParcels();
+		for (Coordinate coord : map.keySet()) {
+			if ((toFinish && map.get(coord).isType(MapTile.Type.FINISH)
+					|| (!toFinish && map.get(coord) instanceof ParcelTrap))) {
+				dests.add(coord);
+			}
+		}
+		
+		return dests;
+	}
+
+	private void routeTowards(Coordinate dest) {
+		Coordinate currentPos = new Coordinate(getPosition());
+
+		WorldSpatial.Direction dir = null, orientation = getOrientation();
+
+		if (currentPos.x > dest.x) {
+			dir = WorldSpatial.Direction.WEST;
+		} else if (currentPos.x < dest.x) {
+			dir = WorldSpatial.Direction.EAST;
+		} else if (currentPos.y > dest.y) {
+			dir = WorldSpatial.Direction.SOUTH;
+		} else if (currentPos.y < dest.y) {
+			dir = WorldSpatial.Direction.NORTH;
+		} else {
+			return;
+		}
+
+		applyForwardAcceleration();
+		if (dir == orientation) {
+			return;
+		} else if (dir == WorldSpatial.changeDirection(orientation, WorldSpatial.RelativeDirection.LEFT)) {
+			turnLeft();
+		} else if (dir == WorldSpatial.changeDirection(orientation, WorldSpatial.RelativeDirection.RIGHT)) {
+			turnRight();
+		} else {
+			applyReverseAcceleration();
+		}
+	}
+
+	private boolean hasEnoughParcels() {
+		return numParcelsFound() >= numParcels();
 	}
 }

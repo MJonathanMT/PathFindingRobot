@@ -7,31 +7,36 @@ import java.util.Map;
 import tiles.MapTile;
 import utilities.Coordinate;
 
-public class Node {
-	public static final int[][] offsets = { { 0, 1 }, { 0, -1 }, { 1, 0 }, { -1, 0 } };
+public class Node implements Comparable<Node> {
+	private static final int[][] offsets = { { 0, 1 }, { 0, -1 }, { 1, 0 }, { -1, 0 } };
+	private static final int X = 0;
+	private static final int Y = 1;
+	
 
 	public Coordinate coord;
 	public MapTile tile;
 	public Node parent;
-	public int dist = 0;
+	public float dist = .0f;
 
 	public Node(Coordinate coord, MapTile tile, Node parent) {
 		this.coord = coord;
 		this.tile = tile;
 		this.parent = parent;
-		this.dist = 0; // set later to a better value if need be
+		if (parent == null) {
+			this.dist = 0;
+		} else {
+			this.dist = parent.dist + 1;
+		}
 	}
 
 	public List<Node> getNeighbors(Map<Coordinate, MapTile> map) {
 		List<Node> list = new ArrayList<Node>();
 
 		for (int[] offset : offsets) {
-			Coordinate coord = new Coordinate(this.coord.x + offset[0], this.coord.y + offset[1]);
+			Coordinate coord = new Coordinate(this.coord.x + offset[X], this.coord.y + offset[Y]);
 
 			if (map.containsKey(coord) && !map.get(coord).isType(MapTile.Type.WALL)) {
-				Node node = new Node(coord, map.get(coord), this);
-				node.dist = this.dist + 1;
-				list.add(node);
+				list.add(new Node(coord, map.get(coord), this));
 			}
 		}
 
@@ -48,4 +53,11 @@ public class Node {
 		Node node = (Node) o;
 		return coord.equals(node.coord);
 	}
+
+	@Override
+	public int compareTo(Node arg0) {
+		return (int) (dist - arg0.dist);
+	}
+	
+	
 }

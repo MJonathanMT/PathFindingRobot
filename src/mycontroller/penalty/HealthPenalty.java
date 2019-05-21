@@ -1,7 +1,7 @@
 package mycontroller.penalty;
 
 import mycontroller.router.Node;
-import tiles.LavaTrap;
+import tiles.*;
 
 public class HealthPenalty implements IPenalty {
 	public static HealthPenalty instance = null;
@@ -18,7 +18,10 @@ public class HealthPenalty implements IPenalty {
 	
 	public void applyPenalty(Node node) {
 		if (node.tile instanceof LavaTrap) {
-			node.dist += 4;
+			node.dist += 100;
+		}
+		if (node.tile instanceof WaterTrap || node.tile instanceof HealthTrap) {
+			node.dist -= 0.5;
 		}
 	}
 }
