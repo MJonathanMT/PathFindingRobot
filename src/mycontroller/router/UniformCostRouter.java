@@ -1,6 +1,8 @@
 package mycontroller.router;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
@@ -12,6 +14,10 @@ import utilities.Coordinate;
 import mycontroller.penalty.*;
 
 public class UniformCostRouter implements IRouter {
+	private static final int[][] OFFSETS = { { 0, 1 }, { 0, -1 }, { 1, 0 }, { -1, 0 } };
+	private static final int X = 0;
+	private static final int Y = 1;
+	
 	private IPenalty penalty;
 
 	public UniformCostRouter() throws UnsupportedModeException {
@@ -49,7 +55,7 @@ public class UniformCostRouter implements IRouter {
 			}
 
 			// add neighbors, if we should 
-			for (Node neighbor : node.getNeighbors(map)) {
+			for (Node neighbor : getNeighbors(node, map)) {
 				penalty.applyPenalty(neighbor);
 
 				if (!seen.containsKey(neighbor.coord) || node.compareTo(neighbor) > 0) {
@@ -60,5 +66,20 @@ public class UniformCostRouter implements IRouter {
 		}
 
 		return null;
+	}
+	
+	private static List<Node> getNeighbors(Node node, Map<Coordinate, MapTile> map) {
+		List<Node> list = new ArrayList<Node>(4);
+
+		for (int[] offset : OFFSETS) {
+			Coordinate coord = new Coordinate(node.coord.x + offset[X], node.coord.y + offset[Y]);
+			
+			// add a neighbor if its coord is in the map and not a wall
+			if (map.containsKey(coord) && !map.get(coord).isType(MapTile.Type.WALL)) {
+				list.add(new Node(coord, map.get(coord), node));
+			}
+		}
+		
+		return list;
 	}
 }

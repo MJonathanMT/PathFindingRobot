@@ -8,9 +8,6 @@ import tiles.MapTile;
 import utilities.Coordinate;
 
 public class Node implements Comparable<Node> {
-	private static final int[][] OFFSETS = { { 0, 1 }, { 0, -1 }, { 1, 0 }, { -1, 0 } };
-	private static final int X = 0;
-	private static final int Y = 1;
 
 	public Coordinate coord;
 	public MapTile tile;
@@ -29,21 +26,6 @@ public class Node implements Comparable<Node> {
 		this.tile = tile;
 		this.parent = null;
 		this.cost = .0f;
-	}
-
-	public List<Node> getNeighbors(Map<Coordinate, MapTile> map) {
-		List<Node> list = new ArrayList<Node>(4);
-
-		for (int[] offset : OFFSETS) {
-			Coordinate coord = new Coordinate(this.coord.x + offset[X], this.coord.y + offset[Y]);
-			
-			// add a neighbor if its coord is in the map and not a wall
-			if (map.containsKey(coord) && !map.get(coord).isType(MapTile.Type.WALL)) {
-				list.add(new Node(coord, map.get(coord), this));
-			}
-		}
-		
-		return list;
 	}
 
 	public boolean equals(Object o) {
