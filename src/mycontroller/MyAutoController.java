@@ -60,9 +60,7 @@ public class MyAutoController extends CarController {
 	}
 
 	/**
-	 * Uses the IRouter, router, to find a route to a current destination
-	 * 
-	 * @return boolean, true if router succeeded, else false
+	 * Uses the IRouter, router, to find a route to a current destination, and movesTowards destination
 	 */
 	private void route() {
 		// try get to a parcel or finish first
@@ -109,6 +107,7 @@ public class MyAutoController extends CarController {
 				}
 			}
 		}
+		
 		return dests;
 	}
 

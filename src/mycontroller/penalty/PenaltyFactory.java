@@ -10,10 +10,13 @@ public class PenaltyFactory {
 	 * @throws UnsupportedModeException
 	 */
 	public static IPenalty getCurrentPenalty() throws UnsupportedModeException {
-		if (Simulation.toConserve().equals(Simulation.StrategyMode.HEALTH)) {
-			return HealthPenalty.getInstance();
-		} else {
-			return FuelPenalty.getInstance();
+		switch (Simulation.toConserve()) {
+		case HEALTH:
+			return new HealthPenalty();
+		case FUEL:
+			return new FuelPenalty();
+		default:
+			throw new UnsupportedModeException();
 		}
 	}
 }
