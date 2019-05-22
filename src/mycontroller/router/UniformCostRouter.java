@@ -43,23 +43,23 @@ public class UniformCostRouter implements IRouter {
 			Node node = queue.poll();
 
 			// found destination?
-			if (dests.contains(node.coord)) {
+			if (dests.contains(node.getCoord())) {
 				// reverse engineer to get back the tile we should go to next
-				Node parent = node.parent;
-				while (parent.parent != null) {
+				Node parent = node.getParent();
+				while (parent.getParent() != null) {
 					node = parent;
-					parent = node.parent;
+					parent = node.getParent();
 				}
 				
-				return node.coord;
+				return node.getCoord();
 			}
 
 			// add neighbors, if we should 
 			for (Node neighbor : getNeighbors(node, map)) {
 				penalty.applyPenalty(neighbor);
 
-				if (!seen.containsKey(neighbor.coord) || node.compareTo(neighbor) > 0) {
-					seen.put(neighbor.coord, neighbor.cost);
+				if (!seen.containsKey(neighbor.getCoord()) || node.compareTo(neighbor) > 0) {
+					seen.put(neighbor.getCoord(), neighbor.getCost());
 					queue.add(neighbor);
 				}
 			}
@@ -72,7 +72,7 @@ public class UniformCostRouter implements IRouter {
 		List<Node> list = new ArrayList<Node>(4);
 
 		for (int[] offset : OFFSETS) {
-			Coordinate coord = new Coordinate(node.coord.x + offset[X], node.coord.y + offset[Y]);
+			Coordinate coord = new Coordinate(node.getCoord().x + offset[X], node.getCoord().y + offset[Y]);
 			
 			// add a neighbor if its coord is in the map and not a wall
 			if (map.containsKey(coord) && !map.get(coord).isType(MapTile.Type.WALL)) {

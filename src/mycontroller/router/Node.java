@@ -5,10 +5,10 @@ import utilities.Coordinate;
 
 public class Node implements Comparable<Node> {
 
-	public Coordinate coord;
-	public MapTile tile;
-	public Node parent;
-	public float cost = .0f;
+	private Coordinate coord;
+	private MapTile tile;
+	private Node parent;
+	private float cost = .0f;
 
 	public Node(Coordinate coord, MapTile tile, Node parent) {
 		this.coord = coord;
@@ -38,5 +38,25 @@ public class Node implements Comparable<Node> {
 	@Override
 	public int compareTo(Node n) {
 		return Float.compare(cost, n.cost);
+	}
+	
+	public Coordinate getCoord() {
+		return coord;
+	}
+	
+	public Node getParent() {
+		return parent;
+	}
+	
+	public MapTile getTile() {
+		return tile;
+	}
+	
+	public float getCost() {
+		return cost;
+	}
+	
+	public void penalise(float penalty) {
+		cost += penalty;
 	}
 }
