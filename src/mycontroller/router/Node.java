@@ -8,37 +8,41 @@ import tiles.MapTile;
 import utilities.Coordinate;
 
 public class Node implements Comparable<Node> {
-	private static final int[][] offsets = { { 0, 1 }, { 0, -1 }, { 1, 0 }, { -1, 0 } };
+	private static final int[][] OFFSETS = { { 0, 1 }, { 0, -1 }, { 1, 0 }, { -1, 0 } };
 	private static final int X = 0;
 	private static final int Y = 1;
 
 	public Coordinate coord;
 	public MapTile tile;
 	public Node parent;
-	public float dist = .0f;
+	public float cost = .0f;
 
 	public Node(Coordinate coord, MapTile tile, Node parent) {
 		this.coord = coord;
 		this.tile = tile;
 		this.parent = parent;
-		if (parent == null) {
-			this.dist = 0;
-		} else {
-			this.dist = parent.dist + 1;
-		}
+		this.cost = parent.cost + 1;
+	}
+
+	public Node(Coordinate coord, MapTile tile) {
+		this.coord = coord;
+		this.tile = tile;
+		this.parent = null;
+		this.cost = .0f;
 	}
 
 	public List<Node> getNeighbors(Map<Coordinate, MapTile> map) {
-		List<Node> list = new ArrayList<Node>();
+		List<Node> list = new ArrayList<Node>(4);
 
-		for (int[] offset : offsets) {
+		for (int[] offset : OFFSETS) {
 			Coordinate coord = new Coordinate(this.coord.x + offset[X], this.coord.y + offset[Y]);
-
+			
+			// add a neighbor if its coord is in the map and not a wall
 			if (map.containsKey(coord) && !map.get(coord).isType(MapTile.Type.WALL)) {
 				list.add(new Node(coord, map.get(coord), this));
 			}
 		}
-
+		
 		return list;
 	}
 
@@ -54,8 +58,7 @@ public class Node implements Comparable<Node> {
 	}
 
 	@Override
-	public int compareTo(Node arg0) {
-		float diff = dist - arg0.dist;
-		return diff < .0f ? -1 : (diff > .0f ? 1 : 0);
+	public int compareTo(Node n) {
+		return Float.compare(cost, n.cost);
 	}
 }

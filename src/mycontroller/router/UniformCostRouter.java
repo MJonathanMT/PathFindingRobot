@@ -18,13 +18,17 @@ public class UniformCostRouter implements IRouter {
 		this.penalty = PenaltyFactory.getCurrentPenalty();
 	}
 
+	/**
+	 * Performs a uniform cost search, according to penalty
+	 */
 	public Coordinate getRoute(Map<Coordinate, MapTile> map, Coordinate src, Set<Coordinate> dests) {
+		// abort early if we have no chance of finding a solution
 		if (src == null || dests.isEmpty() || dests.contains(src) || !map.containsKey(src)) {
 			return null;
 		}
 
 		PriorityQueue<Node> queue = new PriorityQueue<>();
-		queue.add(new Node(src, map.get(src), null));
+		queue.add(new Node(src, map.get(src)));
 
 		Map<Coordinate, Float> seen = new HashMap<>();
 		seen.put(src, .0f);
@@ -48,8 +52,8 @@ public class UniformCostRouter implements IRouter {
 			for (Node neighbor : node.getNeighbors(map)) {
 				penalty.applyPenalty(neighbor);
 
-				if (!seen.containsKey(neighbor.coord) || seen.get(neighbor.coord) > neighbor.dist) {
-					seen.put(neighbor.coord, neighbor.dist);
+				if (!seen.containsKey(neighbor.coord) || node.compareTo(neighbor) > 0) {
+					seen.put(neighbor.coord, neighbor.cost);
 					queue.add(neighbor);
 				}
 			}

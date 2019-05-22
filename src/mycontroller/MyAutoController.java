@@ -14,12 +14,9 @@ import utilities.Coordinate;
 import world.WorldSpatial;
 
 public class MyAutoController extends CarController {
-	// How many minimum units the wall is away from the player.
-	private int wallSensitivity = 2;
 
 	private Map<Coordinate, MapTile> map;
-
-	private WorldSpatial.RelativeDirection followingDirection = null;
+	private Set<Coordinate> explored;
 
 	private IRouter router;
 
@@ -29,6 +26,8 @@ public class MyAutoController extends CarController {
 		// start with as much knowledge as we can
 		// we will fill this in as we go
 		this.map = getMap();
+		this.explored = new HashSet<>();
+
 		this.router = new UniformCostRouter();
 	}
 
@@ -36,13 +35,7 @@ public class MyAutoController extends CarController {
 	public void update() {
 		updateMap();
 
-		// try our router
-		if (route()) {
-			return;
-		}
-
-		// resort to wall following
-		followWall();
+		route();
 	}
 
 	/**
@@ -53,104 +46,9 @@ public class MyAutoController extends CarController {
 		for (Coordinate coord : view.keySet()) {
 			if (onScreen(coord)) {
 				map.put(coord, view.get(coord));
+				explored.add(coord);
 			}
 		}
-	}
-
-	/**
-	 * Attempts to follow a wall currently being followed, else tries to follow a wall
-	 */
-	private void followWall() {
-		if (getSpeed() >= 0 && followingDirection != null && checkFollowable(getOrientation())) {
-			applyReverseAcceleration();
-			followingDirection = null;
-		} else {
-			applyForwardAcceleration();
-		}
-
-		boolean left = (followingDirection == WorldSpatial.RelativeDirection.LEFT);
-
-		if (followingDirection != null) {
-			// check if we are still following a wall
-			if (!checkFollowing(followingDirection)) {
-				// turn to follow the wall
-				if (left)
-					turnLeft();
-				else
-					turnRight();
-				// check if we can follow something ahead
-			} else if (checkFollowable(getOrientation())) {
-				// turn to follow the wall
-				if (left)
-					turnRight();
-				else
-					turnLeft();
-			}
-		} else {
-			tryFollowWall();
-		}
-	}
-
-	private void tryFollowWall() {
-		// default to left if a wall is direcly ahead
-		if (checkFollowable(getOrientation())) {
-			turnLeft();
-			followingDirection = WorldSpatial.RelativeDirection.RIGHT;
-			return;
-		}
-		
-		// try follow a wall for each relative direction
-		for (WorldSpatial.RelativeDirection relDirection : WorldSpatial.RelativeDirection.values()) {
-			if (checkFollowing(relDirection)) {
-				followingDirection = relDirection;
-				break;
-			}
-		}
-	}
-
-	/**
-	 * Checks if we are following a wall
-	 * @param relative direction to check the wall at
-	 * @return boolean
-	 */
-	private boolean checkFollowing(WorldSpatial.RelativeDirection relative) {
-		return checkFollowable(WorldSpatial.changeDirection(getOrientation(), relative));
-	}
-
-	/**
-	 * Checks if we can follow a wall in a given direction
-	 * @param direction direction to check
-	 * @return
-	 */
-	private boolean checkFollowable(WorldSpatial.Direction direction) {
-		int x_off = 0, y_off = 0;
-		switch (direction) {
-		case EAST:
-			x_off = 1;
-			break;
-		case WEST:
-			x_off = -1;
-			break;
-		case NORTH:
-			y_off = 1;
-			break;
-		case SOUTH:
-			y_off = -1;
-			break;
-		}
-
-		Coordinate currentPosition = new Coordinate(getPosition());
-		for (int i = 0; i <= wallSensitivity; i++) {
-			Coordinate relativeCoordinate = new Coordinate(currentPosition.x + x_off, currentPosition.y + y_off);
-			if (!onScreen(relativeCoordinate)) {
-				return true;
-			}
-			MapTile tile = map.get(relativeCoordinate);
-			if (tile.isType(MapTile.Type.WALL)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	/**
@@ -163,41 +61,64 @@ public class MyAutoController extends CarController {
 
 	/**
 	 * Uses the IRouter, router, to find a route to a current destination
+	 * 
 	 * @return boolean, true if router succeeded, else false
 	 */
-	private boolean route() {
-		Set<Coordinate> dests = getDests();
+	private void route() {
+		// try get to a parcel or finish first
+		Set<Coordinate> dests = getDests(false);
 
 		Coordinate dest = router.getRoute(map, new Coordinate(getPosition()), dests);
 
-		if (dest != null) {
-			routeTowards(dest);
-			return true;
+		if (dest == null) {
+			// fall back to exploration
+			dests = getDests(true);
+			dest = router.getRoute(map, new Coordinate(getPosition()), dests);
 		}
 
-		return false;
+		if (dest != null) {
+			moveTowards(dest);
+		} else {
+			// shouldn't happen, but just in case
+			applyBrake();
+		}
 	}
 
-	/** 
-	 * Gets the current destinations we want to travel to.
-	 * If we have not picked up enough parcels, it will be a set of known parcel coords, else the finishes
+	/**
+	 * Gets the current destinations we want to travel to
+	 * 
+	 * @param explore boolean, true if we should explore the map more, else false to
+	 *                route to the finish or a parcel
 	 * @return Set<Coordinate>
 	 */
-	private Set<Coordinate> getDests() {
+	private Set<Coordinate> getDests(boolean explore) {
 		Set<Coordinate> dests = new HashSet<>();
 
-		boolean finish = (numParcelsFound() >= numParcels());
-		for (Coordinate coord : map.keySet()) {
-			if ((finish && map.get(coord).isType(MapTile.Type.FINISH)
-					|| (!finish && map.get(coord) instanceof ParcelTrap))) {
-				dests.add(coord);
+		if (explore) {
+			for (Coordinate coord : map.keySet()) {
+				if (!map.get(coord).isType(MapTile.Type.WALL) && !explored.contains(coord)) {
+					dests.add(coord);
+				}
+			}
+		} else {
+			boolean finished = (numParcelsFound() >= numParcels());
+			for (Coordinate coord : map.keySet()) {
+				if ((finished && map.get(coord).isType(MapTile.Type.FINISH)
+						|| (!finished && map.get(coord) instanceof ParcelTrap))) {
+					dests.add(coord);
+				}
 			}
 		}
-
 		return dests;
 	}
 
-	private void routeTowards(Coordinate dest) {
+	/**
+	 * Routes the car towards dest (assumed to be one of the four adjacent
+	 * coordinates to current position)
+	 * 
+	 * @param dest
+	 */
+	private void moveTowards(Coordinate dest) {
 		Coordinate currentPos = new Coordinate(getPosition());
 
 		WorldSpatial.Direction orientation = getOrientation(), direction;

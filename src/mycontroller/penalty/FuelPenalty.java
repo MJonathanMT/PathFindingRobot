@@ -1,6 +1,7 @@
 package mycontroller.penalty;
 
 import mycontroller.router.Node;
+import tiles.LavaTrap;
 
 public class FuelPenalty implements IPenalty {
 	// singleton
@@ -17,6 +18,8 @@ public class FuelPenalty implements IPenalty {
 	}
 	
 	public void applyPenalty(Node node) {
-		// nothing, optimise distance, which is default anyway
+		if (node.tile instanceof LavaTrap) {
+			node.cost += 50;
+		}
 	}
 }
