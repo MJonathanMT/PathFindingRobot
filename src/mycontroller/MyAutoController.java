@@ -63,23 +63,20 @@ public class MyAutoController extends CarController {
 	 * Uses the IRouter, router, to find a route to a current destination, and movesTowards destination
 	 */
 	private void route() {
+		Coordinate src = getCoordinate();
+
 		// try get to a parcel or finish first
-		Set<Coordinate> dests = getDests(false);
-
-		Coordinate dest = router.getRoute(map, new Coordinate(getPosition()), dests);
-
-		if (dest == null) {
-			// fall back to exploration
-			dests = getDests(true);
-			dest = router.getRoute(map, new Coordinate(getPosition()), dests);
+		boolean[] order = {false, true};
+		for (boolean explore : order) {
+			Coordinate dest = router.getRoute(map, src, getDests(explore));
+			if (dest != null) {
+				moveTowards(dest);
+				return;
+			}
 		}
-
-		if (dest != null) {
-			moveTowards(dest);
-		} else {
-			// shouldn't happen, but just in case
-			applyBrake();
-		}
+		
+		// shouldn't occur, but just in case
+		applyBrake();
 	}
 
 	/**
@@ -118,7 +115,7 @@ public class MyAutoController extends CarController {
 	 * @param dest
 	 */
 	private void moveTowards(Coordinate dest) {
-		Coordinate currentPos = new Coordinate(getPosition());
+		Coordinate currentPos = getCoordinate();
 
 		WorldSpatial.Direction orientation = getOrientation(), direction;
 
@@ -144,5 +141,9 @@ public class MyAutoController extends CarController {
 		} else {
 			applyReverseAcceleration();
 		}
+	}
+	
+	private Coordinate getCoordinate() {
+		return new Coordinate(getPosition());
 	}
 }

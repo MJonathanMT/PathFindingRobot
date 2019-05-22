@@ -6,7 +6,7 @@ import tiles.LavaTrap;
 public class FuelPenalty implements IPenalty {	
 	public void applyPenalty(Node node) {
 		if (node.tile instanceof LavaTrap) {
-			node.cost += 50;
+			node.cost += 5;
 		}
 	}
 }
