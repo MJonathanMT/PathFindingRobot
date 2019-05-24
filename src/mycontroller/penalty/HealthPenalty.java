@@ -1,7 +1,8 @@
 package mycontroller.penalty;
 
 import mycontroller.router.Node;
-import tiles.*;
+import tiles.MapTile;
+import tiles.TrapTile;
 
 public class HealthPenalty implements IPenalty {
 	private static HealthPenalty instance = null;
@@ -19,21 +20,24 @@ public class HealthPenalty implements IPenalty {
 
 	public void applyPenalty(Node node) {
 		MapTile tile = node.getTile();
+		float penalty = 1.0f;
+		
 		if (node.getTile().isType(MapTile.Type.TRAP)) {
-			float penalty = .0f;
 			TrapTile trap = (TrapTile) tile;
 
 			switch (trap.getTrap()) {
 			case "lava":
-				penalty = 50f;
+				penalty += 2.5f;
 				break;
 			case "water":
+				penalty += 0.75f;
+				break;
 			case "health":
-				penalty = -.5f;
+				penalty += 0.5;//.25f;
 				break;
 			}
-
-			node.penalise(penalty);
 		}
+		
+		node.penalise(penalty);
 	}
 }

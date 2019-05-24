@@ -102,9 +102,9 @@ public class Simulation extends ApplicationAdapter implements InputProcessor {
 		int runSpeed = Integer.parseInt(drivingProperties.getProperty("RunSpeed"));
 		if (runSpeed < 1) {
 			runSpeed = 1;
-		} else if (runSpeed > 8) {
+		} /*else if (runSpeed > 8) {
 			runSpeed = 8;
-		}
+		}*/
 		TIME_STEP = (1/2f) / runSpeed;
 		
 		String controllerName =  drivingProperties.getProperty("Controller");

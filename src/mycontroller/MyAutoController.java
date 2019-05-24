@@ -2,64 +2,35 @@ package mycontroller;
 
 import controller.CarController;
 import exceptions.UnsupportedModeException;
+import mycontroller.mapper.*;
 import mycontroller.router.*;
 import world.Car;
 
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
-import tiles.*;
 import utilities.Coordinate;
 import world.WorldSpatial;
 
 public class MyAutoController extends CarController {
 
-	private Map<Coordinate, MapTile> map;
-	private Set<Coordinate> explored;
-
+	private IMapper mapper;
 	private IRouter router;
 
 	public MyAutoController(Car car) throws UnsupportedModeException {
 		super(car);
 
-		// start with as much knowledge as we can
-		// we will fill this in as we go
-		this.map = getMap();
-		this.explored = new HashSet<>();
-
-		this.router = new UniformCostRouter();
+		this.mapper = MapperFactory.getMapper(getMap());
+		this.router = RouterFactory.getRouter();
 	}
 
 	@Override
 	public void update() {
-		updateMap();
-
-		route();
-	}
-
-	/**
-	 * Updates map with current view
-	 */
-	private void updateMap() {
-		Map<Coordinate, MapTile> view = getView();
-		for (Coordinate coord : view.keySet()) {
-			map.put(coord, view.get(coord));
-			explored.add(coord);
-		}
-	}
-	
-	/**
-	 * Uses the IRouter, router, to find a route to a current destination, and
-	 * movesTowards destination
-	 */
-	private void route() {
-		Coordinate src = new Coordinate(getPosition());
+		mapper.update(getView());
 
 		// try get to a parcel or finish first
-		boolean[] order = { false, true };
-		for (boolean explore : order) {
-			Coordinate dest = router.getRoute(map, src, getDests(explore));
+		Coordinate src = new Coordinate(getPosition());
+		IMapper.Type first = (numParcelsFound() >= numParcels()) ? IMapper.Type.FINISH : IMapper.Type.PARCEL;
+		IMapper.Type[] order = { first, IMapper.Type.EXPLORE };
+		for (IMapper.Type type : order) {
+			Coordinate dest = router.getRoute(mapper.getMap(), src, mapper.getDestinations(type));
 			if (dest != null) {
 				moveTowards(dest);
 				return;
@@ -68,28 +39,6 @@ public class MyAutoController extends CarController {
 
 		// shouldn't occur, but just in case
 		applyBrake();
-	}
-
-	/**
-	 * Gets the current destinations we want to travel to
-	 * 
-	 * @param explore boolean, true if we should explore the map more, else false to
-	 *                route to the finish or a parcel
-	 * @return Set<Coordinate>
-	 */
-	private Set<Coordinate> getDests(boolean explore) {
-		Set<Coordinate> dests = new HashSet<>();
-
-		boolean finished = (numParcelsFound() >= numParcels());
-		for (Coordinate coord : map.keySet()) {
-			if ((explore && !map.get(coord).isType(MapTile.Type.WALL) && !explored.contains(coord))
-					|| (!explore && (finished && map.get(coord).isType(MapTile.Type.FINISH)
-							|| (!finished && map.get(coord) instanceof ParcelTrap)))) {
-				dests.add(coord);
-			}
-		}
-
-		return dests;
 	}
 
 	/**

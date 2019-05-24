@@ -14,7 +14,7 @@ public class Node implements Comparable<Node> {
 		this.coord = coord;
 		this.tile = tile;
 		this.parent = parent;
-		this.cost = parent.cost + 1;
+		this.cost = parent.cost;
 	}
 
 	public Node(Coordinate coord, MapTile tile) {

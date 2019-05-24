@@ -19,17 +19,18 @@ public class FuelPenalty implements IPenalty {
 
 	public void applyPenalty(Node node) {
 		MapTile tile = node.getTile();
+		float penalty = 1.0f;
+		
 		if (node.getTile().isType(MapTile.Type.TRAP)) {
-			float penalty = .0f;
 			TrapTile trap = (TrapTile) tile;
 
 			switch (trap.getTrap()) {
 			case "lava":
-				penalty = 2.5f;
-			break;
+				penalty += 2.5f;
+				break;
 			}
-			
-			node.penalise(penalty);
 		}
+		
+		node.penalise(penalty);
 	}
 }

@@ -8,10 +8,10 @@ import java.util.PriorityQueue;
 import java.util.Set;
 
 import exceptions.UnsupportedModeException;
+import mycontroller.penalty.IPenalty;
+import mycontroller.penalty.PenaltyFactory;
 import tiles.MapTile;
 import utilities.Coordinate;
-
-import mycontroller.penalty.*;
 
 public class UniformCostRouter implements IRouter {
 	private static final int[][] OFFSETS = { { 0, 1 }, { 0, -1 }, { 1, 0 }, { -1, 0 } };
@@ -56,10 +56,9 @@ public class UniformCostRouter implements IRouter {
 
 			// add neighbors, if we should 
 			for (Node neighbor : getNeighbors(node, map)) {
-				penalty.applyPenalty(neighbor);
-
-				if (!seen.containsKey(neighbor.getCoord()) || node.compareTo(neighbor) > 0) {
-					seen.put(neighbor.getCoord(), neighbor.getCost());
+				Coordinate coord = neighbor.getCoord();
+				if (!seen.containsKey(coord) || node.compareTo(neighbor) > 0) {
+					seen.put(coord, neighbor.getCost());
 					queue.add(neighbor);
 				}
 			}
@@ -68,15 +67,17 @@ public class UniformCostRouter implements IRouter {
 		return null;
 	}
 	
-	private static List<Node> getNeighbors(Node node, Map<Coordinate, MapTile> map) {
+	private List<Node> getNeighbors(Node node, Map<Coordinate, MapTile> map) {
 		List<Node> list = new ArrayList<Node>(4);
 
 		for (int[] offset : OFFSETS) {
 			Coordinate coord = new Coordinate(node.getCoord().x + offset[X], node.getCoord().y + offset[Y]);
-			
 			// add a neighbor if its coord is in the map and not a wall
 			if (map.containsKey(coord) && !map.get(coord).isType(MapTile.Type.WALL)) {
-				list.add(new Node(coord, map.get(coord), node));
+				Node neighbor = new Node(coord, map.get(coord), node);
+				penalty.applyPenalty(neighbor);
+				
+				list.add(neighbor);
 			}
 		}
 		
