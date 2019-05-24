@@ -44,21 +44,11 @@ public class MyAutoController extends CarController {
 	private void updateMap() {
 		Map<Coordinate, MapTile> view = getView();
 		for (Coordinate coord : view.keySet()) {
-			if (onScreen(coord)) {
-				map.put(coord, view.get(coord));
-				explored.add(coord);
-			}
+			map.put(coord, view.get(coord));
+			explored.add(coord);
 		}
 	}
-
-	/**
-	 * @param coordinate Coordinate to check
-	 * @return true if Coordinate is on screen, false otherwise
-	 */
-	private boolean onScreen(Coordinate coordinate) {
-		return 0 <= coordinate.x && coordinate.x < mapWidth() && 0 <= coordinate.y && coordinate.y < mapHeight();
-	}
-
+	
 	/**
 	 * Uses the IRouter, router, to find a route to a current destination, and
 	 * movesTowards destination
