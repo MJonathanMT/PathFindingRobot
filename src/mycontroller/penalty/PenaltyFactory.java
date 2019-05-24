@@ -12,9 +12,9 @@ public class PenaltyFactory {
 	public static IPenalty getCurrentPenalty() throws UnsupportedModeException {
 		switch (Simulation.toConserve()) {
 		case HEALTH:
-			return new HealthPenalty();
+			return HealthPenalty.getInstance();
 		case FUEL:
-			return new FuelPenalty();
+			return FuelPenalty.getInstance();
 		default:
 			throw new UnsupportedModeException();
 		}

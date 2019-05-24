@@ -54,7 +54,7 @@ public class MyAutoController extends CarController {
 	 * movesTowards destination
 	 */
 	private void route() {
-		Coordinate src = getCoordinate();
+		Coordinate src = new Coordinate(getPosition());
 
 		// try get to a parcel or finish first
 		boolean[] order = { false, true };
@@ -99,7 +99,7 @@ public class MyAutoController extends CarController {
 	 * @param dest
 	 */
 	private void moveTowards(Coordinate dest) {
-		Coordinate currentPos = getCoordinate();
+		Coordinate currentPos = new Coordinate(getPosition());
 
 		WorldSpatial.Direction orientation = getOrientation(), direction;
 
@@ -126,9 +126,5 @@ public class MyAutoController extends CarController {
 		} else {
 			applyReverseAcceleration();
 		}
-	}
-
-	private Coordinate getCoordinate() {
-		return new Coordinate(getPosition());
 	}
 }
