@@ -60,13 +60,14 @@ public class MyAutoController extends CarController {
 	}
 
 	/**
-	 * Uses the IRouter, router, to find a route to a current destination, and movesTowards destination
+	 * Uses the IRouter, router, to find a route to a current destination, and
+	 * movesTowards destination
 	 */
 	private void route() {
 		Coordinate src = getCoordinate();
 
 		// try get to a parcel or finish first
-		boolean[] order = {false, true};
+		boolean[] order = { false, true };
 		for (boolean explore : order) {
 			Coordinate dest = router.getRoute(map, src, getDests(explore));
 			if (dest != null) {
@@ -74,7 +75,7 @@ public class MyAutoController extends CarController {
 				return;
 			}
 		}
-		
+
 		// shouldn't occur, but just in case
 		applyBrake();
 	}
@@ -89,22 +90,15 @@ public class MyAutoController extends CarController {
 	private Set<Coordinate> getDests(boolean explore) {
 		Set<Coordinate> dests = new HashSet<>();
 
-		if (explore) {
-			for (Coordinate coord : map.keySet()) {
-				if (!map.get(coord).isType(MapTile.Type.WALL) && !explored.contains(coord)) {
-					dests.add(coord);
-				}
-			}
-		} else {
-			boolean finished = (numParcelsFound() >= numParcels());
-			for (Coordinate coord : map.keySet()) {
-				if ((finished && map.get(coord).isType(MapTile.Type.FINISH)
-						|| (!finished && map.get(coord) instanceof ParcelTrap))) {
-					dests.add(coord);
-				}
+		boolean finished = (numParcelsFound() >= numParcels());
+		for (Coordinate coord : map.keySet()) {
+			if ((explore && !map.get(coord).isType(MapTile.Type.WALL) && !explored.contains(coord))
+					|| (!explore && (finished && map.get(coord).isType(MapTile.Type.FINISH)
+							|| (!finished && map.get(coord) instanceof ParcelTrap)))) {
+				dests.add(coord);
 			}
 		}
-		
+
 		return dests;
 	}
 
@@ -128,6 +122,7 @@ public class MyAutoController extends CarController {
 		} else if (currentPos.y < dest.y) {
 			direction = WorldSpatial.Direction.NORTH;
 		} else {
+			applyBrake();
 			return;
 		}
 
@@ -142,7 +137,7 @@ public class MyAutoController extends CarController {
 			applyReverseAcceleration();
 		}
 	}
-	
+
 	private Coordinate getCoordinate() {
 		return new Coordinate(getPosition());
 	}
