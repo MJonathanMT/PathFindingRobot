@@ -10,7 +10,10 @@ import utilities.Coordinate;
 import world.WorldSpatial;
 
 public class MyAutoController extends CarController {
-
+	private static int MAX_SPEED = 1;
+	
+	private boolean forward;
+	
 	private IMapper mapper;
 	private IRouter router;
 
@@ -19,14 +22,16 @@ public class MyAutoController extends CarController {
 
 		this.mapper = MapperFactory.getMapper(getMap());
 		this.router = RouterFactory.getRouter();
+		
+		forward = false;
 	}
 
 	@Override
 	public void update() {
 		mapper.update(getView());
 
-		// try get to a parcel or finish first
 		Coordinate src = new Coordinate(getPosition());
+		// try get to a parcel or finish first
 		IMapper.Type first = (numParcelsFound() >= numParcels()) ? IMapper.Type.FINISH : IMapper.Type.PARCEL;
 		IMapper.Type[] order = { first, IMapper.Type.EXPLORE };
 		for (IMapper.Type type : order) {
@@ -65,15 +70,24 @@ public class MyAutoController extends CarController {
 			return;
 		}
 
-		applyForwardAcceleration();
+		// try move faster forwards
+		if (!forward || getSpeed() < MAX_SPEED) {
+			applyForwardAcceleration();	
+			forward = true;
+		}
 		if (direction == orientation) {
+			// already heading in the right direction
 			return;
 		} else if (direction == WorldSpatial.changeDirection(orientation, WorldSpatial.RelativeDirection.LEFT)) {
 			turnLeft();
 		} else if (direction == WorldSpatial.changeDirection(orientation, WorldSpatial.RelativeDirection.RIGHT)) {
 			turnRight();
 		} else {
-			applyReverseAcceleration();
+			// try move faster backwards
+			if (forward || getSpeed() < MAX_SPEED) {
+				applyReverseAcceleration();	
+				forward = false;
+			}
 		}
 	}
 }
