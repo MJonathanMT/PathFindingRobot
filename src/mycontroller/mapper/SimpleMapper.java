@@ -1,5 +1,6 @@
 package mycontroller.mapper;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +14,7 @@ public class SimpleMapper implements IMapper {
 	private Set<Coordinate> explored;
 
 	public SimpleMapper(Map<Coordinate, MapTile> map) {
-		this.map = map;
+		this.map = new HashMap<>(map);
 		this.explored = new HashSet<Coordinate>();
 	}
 

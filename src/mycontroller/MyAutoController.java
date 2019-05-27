@@ -11,9 +11,9 @@ import world.WorldSpatial;
 
 public class MyAutoController extends CarController {
 	private static int MAX_SPEED = 1;
-	
+
 	private boolean forward;
-	
+
 	private IMapper mapper;
 	private IRouter router;
 
@@ -22,7 +22,7 @@ public class MyAutoController extends CarController {
 
 		this.mapper = MapperFactory.getMapper(getMap());
 		this.router = RouterFactory.getRouter();
-		
+
 		forward = false;
 	}
 
@@ -72,7 +72,7 @@ public class MyAutoController extends CarController {
 
 		// try move faster forwards
 		if (!forward || getSpeed() < MAX_SPEED) {
-			applyForwardAcceleration();	
+			applyForwardAcceleration();
 			forward = true;
 		}
 		if (direction == orientation) {
@@ -85,7 +85,7 @@ public class MyAutoController extends CarController {
 		} else {
 			// try move faster backwards
 			if (forward || getSpeed() < MAX_SPEED) {
-				applyReverseAcceleration();	
+				applyReverseAcceleration();
 				forward = false;
 			}
 		}
