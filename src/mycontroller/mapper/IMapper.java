@@ -7,7 +7,7 @@ import tiles.MapTile;
 import utilities.Coordinate;
 
 public interface IMapper {
-	public enum Type { EXPLORE, FINISH, PARCEL };
+	public enum Type { EXPLORE, FINISH, PARCEL, HEALTH };
 	
 	public void update(Map<Coordinate, MapTile> view);
 	

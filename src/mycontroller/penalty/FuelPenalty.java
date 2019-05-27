@@ -28,6 +28,11 @@ public class FuelPenalty implements IPenalty {
 			case "lava":
 				penalty += 2.5f;
 				break;
+			case "water":
+			case "health":
+				penalty -= .5f;
+				break;
+			
 			}
 		}
 		

@@ -29,21 +29,26 @@ public class SimpleMapper implements IMapper {
 	@Override
 	public Set<Coordinate> getDestinations(Type type) {
 		Set<Coordinate> dests = new HashSet<>();
-
+		
 		for (Coordinate coord : map.keySet()) {
 			boolean add = false;
 			switch (type) {
 			case EXPLORE:
-				if (!map.get(coord).isType(MapTile.Type.WALL) && !explored.contains(coord))
+				// we want to go somewhere unexplored
+				if (!explored.contains(coord))
 					add = true;
 				break;
 			case FINISH:
+				// we want to get to the finish tiles
 				if (map.get(coord).isType(MapTile.Type.FINISH))
 					add = true;
 				break;
 			case PARCEL:
+				// we want to go to parcels
 				if (map.get(coord).isType(MapTile.Type.TRAP) && ((TrapTile) map.get(coord)).getTrap().equals("parcel"))
 					add = true;
+				break;
+			default: 
 				break;
 			}
 

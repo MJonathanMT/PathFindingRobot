@@ -30,10 +30,8 @@ public class HealthPenalty implements IPenalty {
 				penalty += 2.5f;
 				break;
 			case "water":
-				penalty += 0.75f;
-				break;
 			case "health":
-				penalty += 0.5;//.25f;
+				penalty -= 0.05;//.25f;
 				break;
 			}
 		}
