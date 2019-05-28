@@ -27,14 +27,14 @@ public class UniformCostRouter implements IRouter {
 	/**
 	 * Performs a uniform cost search, according to penalty
 	 */
-	public Coordinate getRoute(Map<Coordinate, MapTile> map, Coordinate src, Set<Coordinate> dests) {
+	public Coordinate getRoute(Map<Coordinate, MapTile> map, Coordinate src, Set<Coordinate> dests, float health) {
 		// abort early if we have no chance of finding a solution
 		if (src == null || dests.isEmpty() || dests.contains(src) || !map.containsKey(src)) {
 			return null;
 		}
 
 		PriorityQueue<Node> queue = new PriorityQueue<>();
-		queue.add(new Node(src, map.get(src)));
+		queue.add(new Node(src, map.get(src), health));
 
 		Map<Coordinate, Float> seen = new HashMap<>();
 		seen.put(src, .0f);
@@ -77,7 +77,10 @@ public class UniformCostRouter implements IRouter {
 				Node neighbor = new Node(coord, map.get(coord), node);
 				penalty.applyPenalty(neighbor);
 				
-				list.add(neighbor);
+				// only consider neighbors with positive health
+				if (neighbor.getHealth() > 0) {
+					list.add(neighbor);
+				}
 			}
 		}
 		

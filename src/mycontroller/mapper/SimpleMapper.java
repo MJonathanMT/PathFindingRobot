@@ -48,6 +48,11 @@ public class SimpleMapper implements IMapper {
 				if (map.get(coord).isType(MapTile.Type.TRAP) && ((TrapTile) map.get(coord)).getTrap().equals("parcel"))
 					add = true;
 				break;
+			case HEALTH:
+					// we want to go to parcels
+					if (map.get(coord).isType(MapTile.Type.TRAP) && !((TrapTile) map.get(coord)).getTrap().equals("lava"))
+						add = true;
+					break;
 			default: 
 				break;
 			}

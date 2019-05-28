@@ -27,11 +27,11 @@ public class HealthPenalty implements IPenalty {
 
 			switch (trap.getTrap()) {
 			case "lava":
-				penalty += 2.5f;
+				penalty += 10f;
 				break;
-			case "water":
 			case "health":
-				penalty -= 0.05;//.25f;
+			case "water":
+				penalty += .5f;//75f;
 				break;
 			}
 		}

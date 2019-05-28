@@ -32,7 +32,6 @@ public class FuelPenalty implements IPenalty {
 			case "health":
 				penalty -= .5f;
 				break;
-			
 			}
 		}
 		

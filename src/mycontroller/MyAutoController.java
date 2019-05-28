@@ -31,11 +31,13 @@ public class MyAutoController extends CarController {
 		mapper.update(getView());
 
 		Coordinate src = new Coordinate(getPosition());
+		IMapper.Type[] order = { null, IMapper.Type.EXPLORE, IMapper.Type.HEALTH };
 		// try get to a parcel or finish first
-		IMapper.Type first = (numParcelsFound() >= numParcels()) ? IMapper.Type.FINISH : IMapper.Type.PARCEL;
-		IMapper.Type[] order = { first, IMapper.Type.EXPLORE };
+		order[0] = (numParcelsFound() >= numParcels()) ? IMapper.Type.FINISH : IMapper.Type.PARCEL;
 		for (IMapper.Type type : order) {
-			Coordinate dest = router.getRoute(mapper.getMap(), src, mapper.getDestinations(type));
+			// we only ever want to travel somewhere if we know we have enough health to get
+			// back, so cap our health usage to 50%
+			Coordinate dest = router.getRoute(mapper.getMap(), src, mapper.getDestinations(type), 0.5f * getHealth());
 			if (dest != null) {
 				moveTowards(dest);
 				return;
