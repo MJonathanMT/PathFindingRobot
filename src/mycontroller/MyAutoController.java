@@ -1,9 +1,13 @@
 package mycontroller;
 
+import java.util.Map;
+import java.util.Set;
+
 import controller.CarController;
 import exceptions.UnsupportedModeException;
 import mycontroller.mapper.*;
 import mycontroller.router.*;
+import tiles.MapTile;
 import world.Car;
 
 import utilities.Coordinate;
@@ -30,20 +34,26 @@ public class MyAutoController extends CarController {
 	public void update() {
 		mapper.update(getView());
 
+		Map<Coordinate, MapTile> map = mapper.getMap();
 		Coordinate src = new Coordinate(getPosition());
-		IMapper.Type[] order = { null, IMapper.Type.EXPLORE, IMapper.Type.HEALTH };
+		
 		// try get to a parcel or finish first
-		order[0] = (numParcelsFound() >= numParcels()) ? IMapper.Type.FINISH : IMapper.Type.PARCEL;
+		// else resort to exploring, then finding health
+		IMapper.Type first = (numParcelsFound() >= numParcels()) ? IMapper.Type.FINISH : IMapper.Type.PARCEL;
+		IMapper.Type[] order = { first, IMapper.Type.EXPLORE, IMapper.Type.HEALTH };
 		for (IMapper.Type type : order) {
+			Set<Coordinate> dests = mapper.getDestinations(type);
+			
 			// we only ever want to travel somewhere if we know we have enough health to get
 			// back, so cap our health usage to 50%
-			Coordinate dest = router.getRoute(mapper.getMap(), src, mapper.getDestinations(type), 0.5f * getHealth());
+			float availableHealth = 0.5f * getHealth();
+			
+			Coordinate dest = router.getRoute(map, src, dests, availableHealth);
 			if (dest != null) {
 				moveTowards(dest);
 				return;
 			}
 		}
-
 		// shouldn't occur, but just in case
 		applyBrake();
 	}
@@ -59,11 +69,11 @@ public class MyAutoController extends CarController {
 
 		WorldSpatial.Direction orientation = getOrientation(), direction;
 
-		if (currentPos.x > dest.x) {
-			direction = WorldSpatial.Direction.WEST;
-		} else if (currentPos.x < dest.x) {
+		if (currentPos.x < dest.x) {
 			direction = WorldSpatial.Direction.EAST;
-		} else if (currentPos.y > dest.y) {
+		} else if (dest.x < currentPos.x) {
+			direction = WorldSpatial.Direction.WEST;
+		} else if (dest.y < currentPos.y) {
 			direction = WorldSpatial.Direction.SOUTH;
 		} else if (currentPos.y < dest.y) {
 			direction = WorldSpatial.Direction.NORTH;

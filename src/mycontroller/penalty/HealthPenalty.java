@@ -1,41 +1,20 @@
 package mycontroller.penalty;
 
-import mycontroller.router.Node;
-import tiles.MapTile;
-import tiles.TrapTile;
-
 public class HealthPenalty implements IPenalty {
-	private static HealthPenalty instance = null;
 
-	private HealthPenalty() {
-	}
+	private static final float LAVA_PENALTY = 8.0f;
+	private static final float HEALTH_PENALTY = .5f;
 
-	public static HealthPenalty getInstance() {
-		if (instance == null) {
-			instance = new HealthPenalty();
+	@Override
+	public float getPenalty(String trap) {
+		switch(trap) {
+		case "lava":
+			return LAVA_PENALTY;
+		case "health":
+		case "water":
+			return HEALTH_PENALTY;
+		default:
+			return 0f;
 		}
-
-		return instance;
-	}
-
-	public void applyPenalty(Node node) {
-		MapTile tile = node.getTile();
-		float penalty = 1.0f;
-		
-		if (node.getTile().isType(MapTile.Type.TRAP)) {
-			TrapTile trap = (TrapTile) tile;
-
-			switch (trap.getTrap()) {
-			case "lava":
-				penalty += 10f;
-				break;
-			case "health":
-			case "water":
-				penalty += .5f;//75f;
-				break;
-			}
-		}
-		
-		node.penalise(penalty);
 	}
 }

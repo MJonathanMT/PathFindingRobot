@@ -1,40 +1,20 @@
 package mycontroller.penalty;
 
-import mycontroller.router.Node;
-import tiles.*;
-
 public class FuelPenalty implements IPenalty {
-	private static FuelPenalty instance = null;
 
-	private FuelPenalty() {
-	}
+	private static final float LAVA_PENALTY = 2.5f;
+	private static final float HEALTH_PENALTY = -.5f;
 
-	public static FuelPenalty getInstance() {
-		if (instance == null) {
-			instance = new FuelPenalty();
+	@Override
+	public float getPenalty(String trap) {
+		switch(trap) {
+		case "lava":
+			return LAVA_PENALTY;
+		case "health":
+		case "water":
+			return HEALTH_PENALTY;
+		default:
+			return 0f;
 		}
-
-		return instance;
-	}
-
-	public void applyPenalty(Node node) {
-		MapTile tile = node.getTile();
-		float penalty = 1.0f;
-		
-		if (node.getTile().isType(MapTile.Type.TRAP)) {
-			TrapTile trap = (TrapTile) tile;
-
-			switch (trap.getTrap()) {
-			case "lava":
-				penalty += 2.5f;
-				break;
-			case "water":
-			case "health":
-				penalty -= .5f;
-				break;
-			}
-		}
-		
-		node.penalise(penalty);
 	}
 }

@@ -6,15 +6,16 @@ import exceptions.UnsupportedModeException;
 public class PenaltyFactory {
 	/**
 	 * Gets the current penalty applicable for the given simulation
+	 * 
 	 * @return IPenalty
 	 * @throws UnsupportedModeException
 	 */
 	public static IPenalty getCurrentPenalty() throws UnsupportedModeException {
 		switch (Simulation.toConserve()) {
 		case HEALTH:
-			return HealthPenalty.getInstance();
+			return new HealthPenalty();
 		case FUEL:
-			return FuelPenalty.getInstance();
+			return new FuelPenalty();
 		default:
 			throw new UnsupportedModeException();
 		}
