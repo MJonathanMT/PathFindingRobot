@@ -5,9 +5,11 @@ import tiles.MapTile;
 import tiles.TrapTile;
 
 public interface IPenalty {
+	public static final float DEFAULT_PENALTY = 1.0f;
+	
 	public default void penalise(INode node) {
 		MapTile tile = node.getTile();
-		float penalty = 1.0f;
+		float penalty = DEFAULT_PENALTY;
 		
 		if (node.getTile().isType(MapTile.Type.TRAP)) {
 			TrapTile trap = (TrapTile) tile;
