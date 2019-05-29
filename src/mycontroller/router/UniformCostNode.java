@@ -4,10 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import tiles.HealthTrap;
 import tiles.LavaTrap;
 import tiles.MapTile;
-import tiles.WaterTrap;
 import utilities.Coordinate;
 
 public class UniformCostNode implements INode, Comparable<UniformCostNode> {

@@ -4,24 +4,26 @@ import java.util.Map;
 import java.util.Set;
 
 import controller.CarController;
-import exceptions.UnsupportedModeException;
-import mycontroller.mapper.*;
-import mycontroller.router.*;
+import mycontroller.mapper.IMapper;
+import mycontroller.mapper.MapperFactory;
+import mycontroller.router.IRouter;
+import mycontroller.router.RouterFactory;
 import tiles.MapTile;
-import world.Car;
-
 import utilities.Coordinate;
+import world.Car;
 import world.WorldSpatial;
 
 public class MyAutoController extends CarController {
-	private static int MAX_SPEED = 1;
+	private static final int MAX_SPEED = 1;
+	
+	private static final float HEALTH_PERC = 0.5f;
 
 	private boolean forward;
 
 	private IMapper mapper;
 	private IRouter router;
 
-	public MyAutoController(Car car) throws UnsupportedModeException {
+	public MyAutoController(Car car) {
 		super(car);
 
 		this.mapper = MapperFactory.getMapper(getMap());
@@ -31,7 +33,7 @@ public class MyAutoController extends CarController {
 	}
 
 	@Override
-	public void update() {
+	public void update() {		
 		mapper.update(getView());
 
 		Map<Coordinate, MapTile> map = mapper.getMap();
@@ -44,9 +46,7 @@ public class MyAutoController extends CarController {
 		for (IMapper.Type type : order) {
 			Set<Coordinate> dests = mapper.getDestinations(type);
 			
-			// we only ever want to travel somewhere if we know we have enough health to get
-			// back, so cap our health usage to 50%
-			float availableHealth = 0.5f * getHealth();
+			float availableHealth = HEALTH_PERC * getHealth();
 			
 			Coordinate dest = router.getRoute(map, src, dests, availableHealth);
 			if (dest != null) {
